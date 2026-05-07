@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist_Mono, JetBrains_Mono } from "next/font/google";
+
 import "./globals.css";
+
 import { cn } from "@/lib/utils";
 
 const geistMonoHeading = Geist_Mono({

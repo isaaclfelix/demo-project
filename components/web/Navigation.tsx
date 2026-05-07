@@ -1,5 +1,11 @@
 "use client";
 
+import Link from "next/link";
+
+import { SunDimIcon } from "@phosphor-icons/react";
+
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -7,10 +13,6 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import Link from "next/link";
-import { SunDimIcon } from "@phosphor-icons/react";
 
 export function Navigation() {
   return (
