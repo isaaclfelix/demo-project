@@ -28,6 +28,20 @@ Use **lowercase kebab-case** with a **type prefix** (aligned with [Conventional 
 
 **Avoid:** spaces, vague names like `fix/bug` or `feat/update`, and branches that do not match the enforced pattern when pushing.
 
+### Commit messages
+
+Commits are validated with **[Commitlint](https://github.com/conventional-changelog/commitlint)** using [@commitlint/config-conventional](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional). Rules match [Conventional Commits](https://www.conventionalcommits.org/) (see [commitlint.config.js](./commitlint.config.js) in this repo).
+
+**Summary line format:** `type(optional-scope): subject`
+
+- **Type** is lowercase and must be one of: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`.
+- **Scope** in parentheses is optional, e.g. `feat(ui): add toggle`.
+- **Subject** follows the preset (length, case, no trailing period, etc.).
+
+**Branch vs commit:** branches use a slash after the type (`feat/add-login`), while commits use a colon and a space (`feat: add login`).
+
+**Examples:** `fix: correct nav overflow on mobile`, `chore: add commitlint`, `docs: link contributing guide`
+
 ### Pre-push hook
 
 This repository installs a **Husky** `pre-push` hook that blocks pushes from branches whose names do not match the convention above (except the long-lived allowlist).
@@ -37,4 +51,13 @@ This repository installs a **Husky** `pre-push` hook that blocks pushes from bra
 - **Unix shell / Git Bash:** `HUSKY=0 git push`
 - **PowerShell:** `$env:HUSKY=0; git push` (or for one command: `$env:HUSKY=0; git push origin your-branch`)
 
-After cloning, run `npm install` so the `prepare` script installs Husky hooks. On Windows, use **Git for Windows** so hooks run with the bundled `sh`. If you use WSL and Windows on the same clone, stick to one environment to avoid inconsistent hook behavior.
+### Commit-msg hook (Commitlint)
+
+A **Husky** `commit-msg` hook runs Commitlint on every commit message.
+
+**Bypass when you must** (emergency only):
+
+- **Unix shell / Git Bash:** `HUSKY=0 git commit` (with your usual arguments)
+- **PowerShell:** `$env:HUSKY=0; git commit` (with your usual arguments)
+
+After cloning, run **`pnpm install`** so the `prepare` script installs Husky hooks and dependencies. On Windows, use **Git for Windows** so hooks run with the bundled `sh`. If you use WSL and Windows on the same clone, stick to one environment to avoid inconsistent hook behavior.

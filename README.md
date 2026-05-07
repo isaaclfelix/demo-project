@@ -1,6 +1,6 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Contributors: see [CONTRIBUTING.md](./CONTRIBUTING.md) for Git branch naming and Husky hooks.
+Contributors: see [CONTRIBUTING.md](./CONTRIBUTING.md) for Git branch naming, [Commitlint](https://github.com/conventional-changelog/commitlint) (conventional commits), and Husky hooks.
 
 ## Getting Started
 
