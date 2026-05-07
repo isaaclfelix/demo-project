@@ -5,7 +5,7 @@ case "$branch" in
 main|master|develop|staging) exit 0 ;;
 esac
 
-if echo "$branch" | grep -Eq '^(feat|fix|docs|chore|refactor|test|ci|perf|build)/[a-z0-9]+(-[a-z0-9]+)*$'; then
+if echo "$branch" | grep -Eq '^(feat|fix|docs|chore|refactor|test|ci|perf|build|style|revert)/[a-z0-9]+(-[a-z0-9]+)*$'; then
 	exit 0
 fi
 
