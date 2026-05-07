@@ -36,7 +36,7 @@ export default function RootLayout({
         geistMonoHeading.variable,
       )}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }
