@@ -14,43 +14,45 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
-export function Navigation() {
+export function Navigation(): React.ReactNode {
   return (
-    <header className="sticky top-0 z-50 mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
-      <NavigationMenu>
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuLink
-              asChild
-              className={navigationMenuTriggerStyle()}
-            >
-              <Link href="/">Home</Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuLink
-              asChild
-              className={navigationMenuTriggerStyle()}
-            >
-              <Link href="/blog">Blog</Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+    <header className="sticky top-0 z-50 bg-background shadow-sm">
+      <div className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:p-8">
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                asChild
+                className={navigationMenuTriggerStyle()}
+              >
+                <Link href="/">Home</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                asChild
+                className={navigationMenuTriggerStyle()}
+              >
+                <Link href="/blog">Blog</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
 
-      <ButtonGroup>
         <ButtonGroup>
-          <Button variant="outline" size="lg">
-            <SunDimIcon />
-          </Button>
+          <ButtonGroup>
+            <Button variant="outline" size="lg">
+              <SunDimIcon />
+            </Button>
+          </ButtonGroup>
+          <ButtonGroup>
+            <Button size="lg">Login</Button>
+            <Button variant="secondary" size="lg">
+              Register
+            </Button>
+          </ButtonGroup>
         </ButtonGroup>
-        <ButtonGroup>
-          <Button size="lg">Login</Button>
-          <Button variant="secondary" size="lg">
-            Register
-          </Button>
-        </ButtonGroup>
-      </ButtonGroup>
+      </div>
     </header>
   );
 }
