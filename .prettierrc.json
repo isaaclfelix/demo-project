@@ -1,5 +1,26 @@
 {
-  "plugins": ["prettier-plugin-tailwindcss"],
+  "plugins": [
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ],
   "tailwindStylesheet": "./app/globals.css",
-  "tailwindFunctions": ["cn", "cva", "clsx", "twMerge"]
+  "tailwindFunctions": ["cn", "cva", "clsx", "twMerge"],
+  "importOrder": [
+    "^react$",
+    "^react-dom$",
+    "^next(/.*)?$",
+    "",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@/components/ui(/.*)?$",
+    "^@/components/web(/.*)?$",
+    "^@/lib(/.*)?$",
+    "^@/app(/.*)?$",
+    "^@/.*$",
+    "",
+    "^[./]"
+  ],
+  "importOrderTypeScriptVersion": "5.0.0",
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+  "importOrderCaseSensitive": false
 }
