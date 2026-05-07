@@ -3,9 +3,15 @@ import { Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const geistMonoHeading = Geist_Mono({subsets:['latin'],variable:'--font-heading'});
+const geistMonoHeading = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-heading",
+});
 
-const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,9 +26,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", "font-mono", jetbrainsMono.variable, geistMonoHeading.variable)}
+      className={cn(
+        "h-full",
+        "antialiased",
+        "font-mono",
+        jetbrainsMono.variable,
+        geistMonoHeading.variable,
+      )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

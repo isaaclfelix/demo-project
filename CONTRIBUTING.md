@@ -6,19 +6,19 @@
 
 Use **lowercase kebab-case** with a **type prefix** (aligned with [Conventional Commits](https://www.conventionalcommits.org/) types):
 
-| Prefix       | Use for                                      |
-| ------------ | -------------------------------------------- |
-| `feat/`      | New user-facing behavior                     |
-| `fix/`       | Bug fixes                                    |
-| `docs/`      | Documentation only                           |
-| `chore/`     | Tooling, dependencies, config                |
-| `refactor/`  | Code change without intended behavior change |
-| `test/`      | Tests only                                   |
-| `ci/`        | CI/CD configuration                          |
-| `perf/`      | Performance improvements                     |
-| `build/`     | Build system or bundler changes              |
-| `style/`     | Formatting only (no behavior change)         |
-| `revert/`    | Reverting a prior commit or change           |
+| Prefix      | Use for                                      |
+| ----------- | -------------------------------------------- |
+| `feat/`     | New user-facing behavior                     |
+| `fix/`      | Bug fixes                                    |
+| `docs/`     | Documentation only                           |
+| `chore/`    | Tooling, dependencies, config                |
+| `refactor/` | Code change without intended behavior change |
+| `test/`     | Tests only                                   |
+| `ci/`       | CI/CD configuration                          |
+| `perf/`     | Performance improvements                     |
+| `build/`    | Build system or bundler changes              |
+| `style/`    | Formatting only (no behavior change)         |
+| `revert/`   | Reverting a prior commit or change           |
 
 **Pattern:** `type/short-description-in-kebab-case`
 
@@ -63,3 +63,26 @@ A **Husky** `commit-msg` hook runs Commitlint on every commit message.
 - **PowerShell:** `$env:HUSKY=0; git commit` (with your usual arguments)
 
 After cloning, run **`pnpm install`** so the `prepare` script installs Husky hooks and dependencies. On Windows, use **Git for Windows** so hooks run with the bundled `sh`. If you use WSL and Windows on the same clone, stick to one environment to avoid inconsistent hook behavior.
+
+## Formatting
+
+Code style is enforced by **[Prettier](https://prettier.io/)** (with [`prettier-plugin-tailwindcss`](https://github.com/tailwindlabs/prettier-plugin-tailwindcss) for Tailwind class sorting). ESLint focuses on correctness; Prettier owns formatting. Conflicting ESLint stylistic rules are turned off via [`eslint-config-prettier`](https://github.com/prettier/eslint-config-prettier).
+
+### Editor (Cursor / VS Code)
+
+`.vscode/settings.json` enables **format-on-save** for `.js`, `.mjs`, `.jsx`, `.ts`, and `.tsx` files using the Prettier extension, and runs `eslint --fix` on save. Install the recommended extensions when prompted (`esbenp.prettier-vscode`, `dbaeumer.vscode-eslint`).
+
+### Scripts
+
+- `pnpm format` — format the entire repo with Prettier.
+- `pnpm format:check` — verify formatting without writing (CI-friendly).
+- `pnpm lint` — run ESLint.
+
+### Pre-commit hook (lint-staged)
+
+A **Husky** `pre-commit` hook runs **[lint-staged](https://github.com/lint-staged/lint-staged)** on staged files: `eslint --fix` and `prettier --write` for `*.{js,mjs,jsx,ts,tsx}`, and `prettier --write` for `*.{json,md,css}`.
+
+**Bypass when you must** (emergency only):
+
+- **Unix shell / Git Bash:** `HUSKY=0 git commit` (with your usual arguments)
+- **PowerShell:** `$env:HUSKY=0; git commit` (with your usual arguments)
