@@ -17,10 +17,12 @@ Use **lowercase kebab-case** with a **type prefix** (aligned with [Conventional 
 | `ci/`        | CI/CD configuration                          |
 | `perf/`      | Performance improvements                     |
 | `build/`     | Build system or bundler changes              |
+| `style/`     | Formatting only (no behavior change)         |
+| `revert/`    | Reverting a prior commit or change           |
 
 **Pattern:** `type/short-description-in-kebab-case`
 
-**Examples:** `feat/add-dark-mode-toggle`, `fix/nav-overflow-on-mobile`, `chore/bump-eslint-9`
+**Examples:** `feat/add-dark-mode-toggle`, `fix/nav-overflow-on-mobile`, `chore/bump-eslint-9`, `style/prettier-trailing-commas`, `revert/abc-123-feature-flag`
 
 **Long-lived branches** (no `type/` prefix): `main`, `master`, `develop`, `staging`. Adjust your remote’s default branch names to match what this repo uses.
 
