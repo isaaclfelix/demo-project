@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Hero } from "@/components/web/Hero";
@@ -24,8 +26,12 @@ export default function Home() {
             }
             actions={
               <ButtonGroup>
-                <Button>Get started</Button>
-                <Button variant="outline">Learn more</Button>
+                <Button size="lg" asChild>
+                  <Link href="/blog">Blog</Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="/docs">Docs</Link>
+                </Button>
               </ButtonGroup>
             }
             image={{

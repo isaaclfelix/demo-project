@@ -23,7 +23,7 @@ function HeroWrapper({
 type HeroProps = {
   title: React.ReactNode;
   body: React.ReactNode;
-  actions: React.ReactNode;
+  actions?: React.ReactNode;
   image: ImageProps;
 };
 
@@ -43,12 +43,16 @@ function HeroContent({
           <p className="w-full text-center text-lg font-medium text-pretty text-gray-500 sm:text-xl/8 lg:text-left">
             {body}
           </p>
-          <div className="flex w-full items-center justify-center lg:justify-start">
-            {actions}
-          </div>
+          {actions && (
+            <div className="flex w-full items-center justify-center lg:justify-start">
+              {actions}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-center">
+          {/* The image prop is typed with the ImageProps type from next/image. */}
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <Image {...image} />
         </div>
       </div>

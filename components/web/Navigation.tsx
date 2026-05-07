@@ -46,9 +46,11 @@ export function Navigation(): React.ReactNode {
             </Button>
           </ButtonGroup>
           <ButtonGroup>
-            <Button size="lg">Login</Button>
-            <Button variant="secondary" size="lg">
-              Register
+            <Button size="lg" asChild>
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/register">Register</Link>
             </Button>
           </ButtonGroup>
         </ButtonGroup>
