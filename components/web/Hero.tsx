@@ -37,10 +37,10 @@ function HeroContent({
     <Section>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="flex flex-col items-start justify-center gap-4 lg:gap-8">
-          <h1 className="w-full text-center font-heading text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl lg:text-left">
+          <h1 className="w-full text-center font-heading text-5xl font-semibold tracking-tight text-balance text-foreground sm:text-7xl lg:text-left">
             {title}
           </h1>
-          <p className="w-full text-center text-lg font-medium text-pretty text-gray-500 sm:text-xl/8 lg:text-left">
+          <p className="w-full text-center text-lg font-medium text-pretty text-muted-foreground sm:text-xl/8 lg:text-left">
             {body}
           </p>
           {actions && (

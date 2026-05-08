@@ -2,11 +2,8 @@
 
 import Link from "next/link";
 
-import {
-  ListIcon,
-  MagnifyingGlassIcon,
-  SunDimIcon,
-} from "@phosphor-icons/react";
+import { ListIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -30,6 +27,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Separator } from "@/components/ui/separator";
+import { DarkModeToggleButton } from "@/components/web/DarkModeToggleButton";
 import { cn } from "@/lib/utils";
 
 type NavigationLinkObject = {
@@ -70,21 +68,6 @@ function getNavigationLinks({
   ];
 }
 
-type NavigationToggleDarkModeButtonProps = {
-  label?: string;
-};
-
-function NavigationToggleDarkModeButton({
-  label,
-}: NavigationToggleDarkModeButtonProps): React.ReactNode {
-  return (
-    <Button variant="outline" size="lg" aria-label="Toggle dark mode button">
-      <SunDimIcon />
-      {label && <span>{label}</span>}
-    </Button>
-  );
-}
-
 function NavigationLoginButton(): React.ReactNode {
   return (
     <Button variant="outline" size="lg" aria-label="Login button" asChild>
@@ -113,8 +96,21 @@ function NavigationSearchInput(): React.ReactNode {
 }
 
 export function Navigation(): React.ReactNode {
+  const { resolvedTheme } = useTheme();
+
+  const shadowColor = resolvedTheme === "dark" ? "shadow-input" : "";
+
   return (
-    <header className="sticky top-0 z-50 bg-background shadow-sm">
+    <header
+      className={cn(
+        "sticky",
+        "top-0",
+        "z-50",
+        "bg-background",
+        "shadow-sm",
+        shadowColor,
+      )}
+    >
       <div className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:p-8">
         <div className="flex items-center lg:gap-4">
           <div className="text-2xl font-bold tracking-tight">
@@ -144,7 +140,7 @@ export function Navigation(): React.ReactNode {
             <NavigationSearchInput aria-label="Search bar input" />
           </ButtonGroup>
           <ButtonGroup>
-            <NavigationToggleDarkModeButton />
+            <DarkModeToggleButton />
           </ButtonGroup>
           <ButtonGroup>
             <NavigationLoginButton />
@@ -174,7 +170,7 @@ export function Navigation(): React.ReactNode {
               </ul>
               <Separator className="my-4" />
               <ButtonGroup orientation="vertical" className="w-full">
-                <NavigationToggleDarkModeButton label="Toggle dark mode" />
+                <DarkModeToggleButton label="Toggle dark mode" />
                 <NavigationLoginButton />
                 <NavigationRegisterButton />
               </ButtonGroup>

@@ -4,6 +4,7 @@ import { Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 const geistMonoHeading = Geist_Mono({
   subsets: ["latin"],
@@ -35,8 +36,18 @@ export default function RootLayout({
         jetbrainsMono.variable,
         geistMonoHeading.variable,
       )}
+      suppressHydrationWarning
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
