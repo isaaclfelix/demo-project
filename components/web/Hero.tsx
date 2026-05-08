@@ -11,13 +11,7 @@ function HeroWrapper({
   className,
   children,
 }: HeroWrapperProps): React.ReactNode {
-  const userClasses = className ? className.split(" ") : [];
-
-  const defaultClasses = ["bg-background"];
-
-  const componentClasses = [...defaultClasses, ...userClasses];
-
-  return <div className={cn(...componentClasses)}>{children}</div>;
+  return <div className={cn("bg-background", className)}>{children}</div>;
 }
 
 type HeroProps = {

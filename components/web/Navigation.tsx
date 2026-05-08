@@ -42,21 +42,11 @@ type NavigationLinkProps = {
 function getNavigationLinks({
   className,
 }: NavigationLinkProps = {}): NavigationLinkObject[] {
-  const userClasses = className ? className.split(" ") : [];
-
-  const defaultClasses: string[] = [];
-
-  const componentClasses = [...defaultClasses, ...userClasses];
-
   return [
     {
       key: "home",
       node: (
-        <Link
-          href="/"
-          aria-label="Home link"
-          className={cn(...componentClasses)}
-        >
+        <Link href="/" aria-label="Home link" className={className}>
           Home
         </Link>
       ),
@@ -64,11 +54,7 @@ function getNavigationLinks({
     {
       key: "blog",
       node: (
-        <Link
-          href="/blog"
-          aria-label="Blog link"
-          className={cn(...componentClasses)}
-        >
+        <Link href="/blog" aria-label="Blog link" className={className}>
           Blog
         </Link>
       ),
