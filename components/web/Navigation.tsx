@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { ListIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DarkModeToggleButton } from "@/components/web/DarkModeToggleButton";
 import { cn } from "@/lib/utils";
 
@@ -74,6 +76,14 @@ function NavigationRegisterButton(): React.ReactNode {
   return (
     <Button variant="outline" size="lg" aria-label="Register button" asChild>
       <Link href="/register">Sign up</Link>
+    </Button>
+  );
+}
+
+function NavigationLogoutButton(): React.ReactNode {
+  return (
+    <Button variant="outline" size="lg" aria-label="Logout button" asChild>
+      <Link href="/logout">Logout</Link>
     </Button>
   );
 }
@@ -138,10 +148,20 @@ export function Navigation(): React.ReactNode {
           <ButtonGroup>
             <DarkModeToggleButton />
           </ButtonGroup>
-          <ButtonGroup>
-            <NavigationLoginButton />
-            <NavigationRegisterButton />
-          </ButtonGroup>
+          <AuthLoading>
+            <Skeleton className="h-9 w-[130px]" />
+          </AuthLoading>
+          <Unauthenticated>
+            <ButtonGroup>
+              <NavigationLoginButton />
+              <NavigationRegisterButton />
+            </ButtonGroup>
+          </Unauthenticated>
+          <Authenticated>
+            <ButtonGroup>
+              <NavigationLogoutButton />
+            </ButtonGroup>
+          </Authenticated>
         </ButtonGroup>
 
         <Drawer direction="left">
@@ -167,8 +187,17 @@ export function Navigation(): React.ReactNode {
               <Separator className="my-4" />
               <ButtonGroup orientation="vertical" className="w-full">
                 <DarkModeToggleButton label="Toggle dark mode" />
-                <NavigationLoginButton />
-                <NavigationRegisterButton />
+                <AuthLoading>
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-full" />
+                </AuthLoading>
+                <Unauthenticated>
+                  <NavigationLoginButton />
+                  <NavigationRegisterButton />
+                </Unauthenticated>
+                <Authenticated>
+                  <NavigationLogoutButton />
+                </Authenticated>
               </ButtonGroup>
             </div>
           </DrawerContent>
