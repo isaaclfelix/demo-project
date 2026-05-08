@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Hero } from "@/components/web/Hero";
 import { Navigation } from "@/components/web/Navigation";
 import HeroImage from "@/assets/hero_image.webp";
@@ -24,7 +23,7 @@ export default function Home() {
             </>
           }
           actions={
-            <Button size="lg" asChild>
+            <Button size="lg" aria-label="Go to blog link" asChild>
               <Link href="/blog">See it in action</Link>
             </Button>
           }

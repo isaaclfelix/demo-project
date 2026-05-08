@@ -52,7 +52,11 @@ function getNavigationLinks({
     {
       key: "home",
       node: (
-        <Link href="/" className={cn(...componentClasses)}>
+        <Link
+          href="/"
+          aria-label="Home link"
+          className={cn(...componentClasses)}
+        >
           Home
         </Link>
       ),
@@ -60,7 +64,11 @@ function getNavigationLinks({
     {
       key: "blog",
       node: (
-        <Link href="/blog" className={cn(...componentClasses)}>
+        <Link
+          href="/blog"
+          aria-label="Blog link"
+          className={cn(...componentClasses)}
+        >
           Blog
         </Link>
       ),
@@ -114,7 +122,9 @@ export function Navigation(): React.ReactNode {
       <div className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:p-8">
         <div className="flex items-center lg:gap-4">
           <div className="text-2xl font-bold tracking-tight">
-            <Link href="/">bed.dev</Link>
+            <Link href="/" aria-label="Home link">
+              bed.dev
+            </Link>
           </div>
 
           <div className="hidden border-l lg:block lg:h-8" />
