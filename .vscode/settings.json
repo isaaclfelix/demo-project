@@ -32,7 +32,6 @@
   "editor.formatOnSave": true,
   "editor.formatOnPaste": false,
   "prettier.configPath": ".prettierrc.json",
-  "prettier.enableDebugLogs": true,
   "prettier.prettierPath": "./node_modules/prettier",
   "prettier.requireConfig": true
 }
