@@ -1,0 +1,179 @@
+"use client";
+
+import Link from "next/link";
+
+import { ListIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { useTheme } from "next-themes";
+
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { Separator } from "@/components/ui/separator";
+import { DarkModeToggleButton } from "@/components/web/DarkModeToggleButton";
+import { cn } from "@/lib/utils";
+
+type NavigationLinkObject = {
+  key: string;
+  node: React.ReactNode;
+};
+
+type NavigationLinkProps = {
+  className?: string;
+};
+
+function getNavigationLinks({
+  className,
+}: NavigationLinkProps = {}): NavigationLinkObject[] {
+  return [
+    {
+      key: "home",
+      node: (
+        <Link href="/" aria-label="Home link" className={className}>
+          Home
+        </Link>
+      ),
+    },
+    {
+      key: "blog",
+      node: (
+        <Link href="/blog" aria-label="Blog link" className={className}>
+          Blog
+        </Link>
+      ),
+    },
+  ];
+}
+
+function NavigationLoginButton(): React.ReactNode {
+  return (
+    <Button variant="outline" size="lg" aria-label="Login button" asChild>
+      <Link href="/login">Login</Link>
+    </Button>
+  );
+}
+
+function NavigationRegisterButton(): React.ReactNode {
+  return (
+    <Button variant="outline" size="lg" aria-label="Register button" asChild>
+      <Link href="/register">Sign up</Link>
+    </Button>
+  );
+}
+
+function NavigationSearchInput(): React.ReactNode {
+  return (
+    <InputGroup className="h-9">
+      <InputGroupInput placeholder="Search..." />
+      <InputGroupAddon align="inline-start">
+        <MagnifyingGlassIcon />
+      </InputGroupAddon>
+    </InputGroup>
+  );
+}
+
+export function Navigation(): React.ReactNode {
+  const { resolvedTheme } = useTheme();
+
+  const shadowColor = resolvedTheme === "dark" ? "shadow-input" : "";
+
+  return (
+    <header
+      className={cn(
+        "sticky",
+        "top-0",
+        "z-50",
+        "bg-background",
+        "shadow-sm",
+        shadowColor,
+      )}
+    >
+      <div className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:p-8">
+        <div className="flex items-center lg:gap-4">
+          <div className="text-2xl font-bold tracking-tight">
+            <Link href="/" aria-label="Home link">
+              bed.dev
+            </Link>
+          </div>
+
+          <div className="hidden border-l lg:block lg:h-8" />
+
+          <NavigationMenu className="hidden lg:flex">
+            <NavigationMenuList>
+              {getNavigationLinks().map((link) => (
+                <NavigationMenuItem key={link.key}>
+                  <NavigationMenuLink
+                    asChild
+                    className={navigationMenuTriggerStyle()}
+                  >
+                    {link.node}
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+
+        <ButtonGroup className="hidden lg:flex" aria-label="Navigation actions">
+          <ButtonGroup>
+            <NavigationSearchInput aria-label="Search bar input" />
+          </ButtonGroup>
+          <ButtonGroup>
+            <DarkModeToggleButton />
+          </ButtonGroup>
+          <ButtonGroup>
+            <NavigationLoginButton />
+            <NavigationRegisterButton />
+          </ButtonGroup>
+        </ButtonGroup>
+
+        <Drawer direction="left">
+          <DrawerTrigger asChild>
+            <Button variant="outline" className="lg:hidden">
+              <ListIcon />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Navigation</DrawerTitle>
+            </DrawerHeader>
+            <div className="no-scrollbar overflow-y-auto px-4">
+              <NavigationSearchInput aria-label="Search bar" />
+              <Separator className="my-4" />
+              <ul>
+                {getNavigationLinks({
+                  className: "block w-full py-2 text-base",
+                }).map((link) => (
+                  <li key={link.key}>{link.node}</li>
+                ))}
+              </ul>
+              <Separator className="my-4" />
+              <ButtonGroup orientation="vertical" className="w-full">
+                <DarkModeToggleButton label="Toggle dark mode" />
+                <NavigationLoginButton />
+                <NavigationRegisterButton />
+              </ButtonGroup>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </div>
+    </header>
+  );
+}
