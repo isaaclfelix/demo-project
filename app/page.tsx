@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Footer } from "@/components/web/Footer";
 import { Hero } from "@/components/web/Hero";
 import { Navigation } from "@/components/web/Navigation";
 import HeroImage from "@/assets/hero_image.webp";
@@ -38,6 +40,8 @@ export default function Home() {
           }}
         />
       </main>
+      <Separator className="mt-4" />
+      <Footer />
     </div>
   );
 }
