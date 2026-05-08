@@ -31,7 +31,7 @@ export default function Home() {
           }
           image={{
             src: HeroImage,
-            alt: "Next.js + WordPress",
+            alt: "Next.js + Convex",
             width: 600,
             height: 600,
             priority: true,
