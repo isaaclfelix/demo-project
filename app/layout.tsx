@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { Geist_Mono, JetBrains_Mono } from "next/font/google";
 
 import "./globals.css";
 
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-
-const geistSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
 
 const geistMonoHeading = Geist_Mono({
   subsets: ["latin"],
@@ -38,7 +33,6 @@ export default function RootLayout({
         "h-full",
         "antialiased",
         "font-mono",
-        geistSans.variable,
         jetbrainsMono.variable,
         geistMonoHeading.variable,
       )}
