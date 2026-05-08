@@ -24,14 +24,9 @@ export default function Home() {
             </>
           }
           actions={
-            <ButtonGroup>
-              <Button size="lg" asChild>
-                <Link href="/blog">Blog</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/docs">Docs</Link>
-              </Button>
-            </ButtonGroup>
+            <Button size="lg" asChild>
+              <Link href="/blog">See it in action</Link>
+            </Button>
           }
           image={{
             src: HeroImage,

@@ -13,7 +13,7 @@ function HeroWrapper({
 }: HeroWrapperProps): React.ReactNode {
   const userClasses = className ? className.split(" ") : [];
 
-  const defaultClasses = ["bg-secondary"];
+  const defaultClasses = ["bg-background"];
 
   const componentClasses = [...defaultClasses, ...userClasses];
 
