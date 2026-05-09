@@ -1,8 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 
-import { useAuth, useSignUp } from "@clerk/nextjs";
+import { useSignIn } from "@clerk/nextjs";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { CircleNotchIcon } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
@@ -17,34 +18,34 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { VerifyForm } from "@/components/web/VerifyForm";
-import { signUpSchema, type SignUpSchema } from "@/lib/schemas";
+import { signInSchema, type SignInSchema } from "@/lib/schemas";
 
-export function SignUpForm(): React.ReactNode {
+export function SignInForm(): React.ReactNode {
   const {
     register,
     handleSubmit,
     formState: { errors: schemaErrors },
-  } = useForm<SignUpSchema>({
-    resolver: standardSchemaResolver(signUpSchema),
+  } = useForm<SignInSchema>({
+    resolver: standardSchemaResolver(signInSchema),
   });
 
   const [isPending, startTransition] = useTransition();
 
-  const { signUp, errors: signUpErrors } = useSignUp();
-  const { isSignedIn } = useAuth();
+  const { signIn, errors: signInErrors } = useSignIn();
+
+  const router = useRouter();
 
   /**
    * Handles the form submission after zod validation.
-   * Starts a transition to handle the sign up process.
+   * Starts a transition to handle the sign in process.
    *
-   * @param {SignUpSchema} data - The form data
+   * @param {SignInSchema} data - The form data
    */
-  const onSubmit = (data: SignUpSchema) => {
+  const onSubmit = (data: SignInSchema) => {
     startTransition(async () => {
       const { email: emailAddress, password } = data;
 
-      const { error } = await signUp.password({
+      const { error } = await signIn.password({
         emailAddress,
         password,
       });
@@ -55,19 +56,27 @@ export function SignUpForm(): React.ReactNode {
         return;
       }
 
-      await signUp.verifications.sendEmailCode();
+      if (signIn.status === "complete") {
+        await signIn.finalize({
+          navigate: ({ session, decorateUrl }) => {
+            // Handle session tasks.
+            // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
+            if (session?.currentTask) {
+              return;
+            }
+
+            // If no session tasks, navigate the signed-in user to the home page.
+            const url = decorateUrl("/");
+            if (url.startsWith("http")) {
+              window.location.href = url;
+            } else {
+              router.push(url);
+            }
+          },
+        });
+      }
     });
   };
-
-  if (
-    signUp.status === "complete" ||
-    isSignedIn ||
-    (signUp.status === "missing_requirements" &&
-      signUp.unverifiedFields.includes("email_address") &&
-      signUp.missingFields.length === 0)
-  ) {
-    return <VerifyForm />;
-  }
 
   return (
     <form
@@ -94,9 +103,9 @@ export function SignUpForm(): React.ReactNode {
                     <p>{schemaErrors.email.message}</p>
                   </FieldError>
                 )}
-                {signUpErrors.fields.emailAddress && (
+                {signInErrors.fields.identifier && (
                   <FieldError>
-                    <p>{signUpErrors.fields.emailAddress.message}</p>
+                    <p>{signInErrors.fields.identifier.message}</p>
                   </FieldError>
                 )}
               </Field>
@@ -114,29 +123,29 @@ export function SignUpForm(): React.ReactNode {
                     <p>{schemaErrors.password.message}</p>
                   </FieldError>
                 )}
-                {signUpErrors.fields.password && (
+                {signInErrors.fields.password && (
                   <FieldError>
-                    <p>{signUpErrors.fields.password.message}</p>
+                    <p>{signInErrors.fields.password.message}</p>
                   </FieldError>
                 )}
               </Field>
             </FieldGroup>
           </FieldSet>
         </CardContent>
-        <CardFooter className="flex flex-col items-start gap-4">
+        <CardFooter>
           <Field orientation="horizontal">
             {isPending ? (
               <Button disabled>
                 <CircleNotchIcon className="animate-spin" />
-                Creating account...
+                Signing in...
               </Button>
             ) : (
-              <Button type="submit">Create account</Button>
+              <Button type="submit">Sign in</Button>
             )}
           </Field>
-          <div id="clerk-captcha" style={{ marginBottom: 0 }} />
         </CardFooter>
       </Card>
+      <div id="clerk-captcha" />
     </form>
   );
 }

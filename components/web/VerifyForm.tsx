@@ -34,6 +34,7 @@ export function VerifyForm(): React.ReactNode {
   const [isNewCodePending, startNewCodeTransition] = useTransition();
 
   const { signUp, errors: signUpErrors } = useSignUp();
+
   const router = useRouter();
 
   /**
