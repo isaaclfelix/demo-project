@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { useClerk } from "@clerk/nextjs";
 import { ListIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { useTheme } from "next-themes";
@@ -64,10 +65,10 @@ function getNavigationLinks({
   ];
 }
 
-function NavigationLoginButton(): React.ReactNode {
+function NavigationSignInButton(): React.ReactNode {
   return (
-    <Button variant="outline" size="lg" aria-label="Login button" asChild>
-      <Link href="/login">Login</Link>
+    <Button variant="outline" size="lg" aria-label="Sign in button" asChild>
+      <Link href="/sign-in">Sign in</Link>
     </Button>
   );
 }
@@ -80,10 +81,25 @@ function NavigationRegisterButton(): React.ReactNode {
   );
 }
 
-function NavigationLogoutButton(): React.ReactNode {
+function NavigationSignOutButton(): React.ReactNode {
+  const { signOut } = useClerk();
+
+  /**
+   * Handles the sign out action.
+   * Redirects the user to the home page.
+   */
+  const handleSignOut = () => {
+    signOut({ redirectUrl: "/" });
+  };
+
   return (
-    <Button variant="outline" size="lg" aria-label="Logout button" asChild>
-      <Link href="/logout">Logout</Link>
+    <Button
+      variant="outline"
+      size="lg"
+      aria-label="Sign out button"
+      onClick={handleSignOut}
+    >
+      Sign Out
     </Button>
   );
 }
@@ -153,13 +169,13 @@ export function Navigation(): React.ReactNode {
           </AuthLoading>
           <Unauthenticated>
             <ButtonGroup>
-              <NavigationLoginButton />
+              <NavigationSignInButton />
               <NavigationRegisterButton />
             </ButtonGroup>
           </Unauthenticated>
           <Authenticated>
             <ButtonGroup>
-              <NavigationLogoutButton />
+              <NavigationSignOutButton />
             </ButtonGroup>
           </Authenticated>
         </ButtonGroup>
@@ -192,11 +208,11 @@ export function Navigation(): React.ReactNode {
                   <Skeleton className="h-9 w-full" />
                 </AuthLoading>
                 <Unauthenticated>
-                  <NavigationLoginButton />
+                  <NavigationSignInButton />
                   <NavigationRegisterButton />
                 </Unauthenticated>
                 <Authenticated>
-                  <NavigationLogoutButton />
+                  <NavigationSignOutButton />
                 </Authenticated>
               </ButtonGroup>
             </div>
