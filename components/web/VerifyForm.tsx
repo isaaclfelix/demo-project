@@ -51,27 +51,27 @@ export function VerifyForm(): React.ReactNode {
         code,
       });
 
-      if (signUp.status === "complete") {
-        await signUp.finalize({
-          navigate: ({ session, decorateUrl }) => {
-            // Handle session tasks.
-            // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
-            if (session?.currentTask) {
-              return;
-            }
-
-            // If no session tasks, navigate the signed-in user to the home page.
-            const url = decorateUrl("/");
-            if (url.startsWith("http")) {
-              window.location.href = url;
-            } else {
-              router.push(url);
-            }
-          },
-        });
-
+      if (signUp.status !== "complete") {
         return;
       }
+
+      await signUp.finalize({
+        navigate: async ({ session, decorateUrl }) => {
+          // Handle session tasks.
+          // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
+          if (session?.currentTask) {
+            return;
+          }
+
+          // If no session tasks, navigate the signed-in user to the home page.
+          const url = decorateUrl("/");
+          if (url.startsWith("http")) {
+            window.location.href = url;
+          } else {
+            router.push(url);
+          }
+        },
+      });
     });
   };
 
