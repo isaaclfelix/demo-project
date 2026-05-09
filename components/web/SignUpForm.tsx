@@ -123,7 +123,7 @@ export function SignUpForm(): React.ReactNode {
             </FieldGroup>
           </FieldSet>
         </CardContent>
-        <CardFooter className="flex flex-col items-start gap-4">
+        <CardFooter className="flex flex-col items-start">
           <Field orientation="horizontal">
             {isPending ? (
               <Button disabled>
@@ -134,7 +134,11 @@ export function SignUpForm(): React.ReactNode {
               <Button type="submit">Create account</Button>
             )}
           </Field>
-          <div id="clerk-captcha" style={{ marginBottom: 0 }} />
+          <div
+            id="clerk-captcha"
+            className="mb-0! w-full"
+            data-cl-size="flexible"
+          />
         </CardFooter>
       </Card>
     </form>
