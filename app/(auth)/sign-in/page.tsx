@@ -2,7 +2,7 @@ import { Separator } from "@/components/ui/separator";
 import { SignInForm } from "@/components/web/auth/SignInForm";
 import { Section } from "@/components/web/Section";
 
-export default function SignInPage() {
+export default function SignInPage(): React.ReactNode {
   return (
     <Section>
       <div className="flex flex-col items-center justify-center">

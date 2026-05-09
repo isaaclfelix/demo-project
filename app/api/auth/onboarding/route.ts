@@ -5,7 +5,7 @@ import { fetchMutation } from "convex/nextjs";
 import { getAuthToken } from "@/lib/auth";
 import { api } from "@/convex/_generated/api";
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const redirectToHome = NextResponse.redirect(new URL("/", request.url));
 
   const token = await getAuthToken();

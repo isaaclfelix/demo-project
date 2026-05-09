@@ -2,7 +2,7 @@ import { Separator } from "@/components/ui/separator";
 import { SignUpForm } from "@/components/web/auth/SignUpForm";
 import { Section } from "@/components/web/Section";
 
-export default function SignUpPage() {
+export default async function SignUpPage(): Promise<React.ReactNode> {
   return (
     <Section>
       <div className="flex flex-col items-center justify-center">
