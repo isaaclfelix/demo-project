@@ -1,12 +1,12 @@
 import { ConvexError, v } from "convex/values";
 
-import { mutation } from "./_generated/server";
+import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 
 export const store = mutation({
   args: {
     email: v.string(),
   },
-  handler: async (ctx, { email }) => {
+  handler: async (ctx: MutationCtx, { email }) => {
     const identity = await ctx.auth.getUserIdentity();
 
     if (!identity) {
@@ -31,5 +31,26 @@ export const store = mutation({
       email,
       tokenIdentifier: identity.tokenIdentifier,
     });
+  },
+});
+
+export const currentUser = query({
+  args: {},
+  handler: async (ctx: QueryCtx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new ConvexError(
+        "Called currentUser without authentication present",
+      );
+    }
+
+    // Search for the user by their token identifier.
+    return await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
+      )
+      .unique();
   },
 });

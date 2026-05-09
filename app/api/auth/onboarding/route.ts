@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { fetchMutation } from "convex/nextjs";
 
-import { getAuthToken } from "@/lib/auth/getAuthToken";
+import { getAuthToken } from "@/lib/auth";
 import { api } from "@/convex/_generated/api";
 
 export async function GET(request: NextRequest) {

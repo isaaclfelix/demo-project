@@ -64,7 +64,9 @@ export function VerifyForm(): React.ReactNode {
           }
 
           // If no session tasks, navigate the signed-in user to the onboarding route.
-          const url = decorateUrl(`/onboarding?email=${signUp.emailAddress}`);
+          const url = decorateUrl(
+            `/api/auth/onboarding?email=${signUp.emailAddress}`,
+          );
           if (url.startsWith("http")) {
             window.location.href = url;
           } else {

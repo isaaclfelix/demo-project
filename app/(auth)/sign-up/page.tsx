@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
+import { SignUpForm } from "@/components/web/auth/SignUpForm";
 import { Section } from "@/components/web/Section";
-import { SignUpForm } from "@/components/web/SignUpForm";
 
 export default function SignUpPage() {
   return (

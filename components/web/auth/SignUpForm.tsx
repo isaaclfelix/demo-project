@@ -18,7 +18,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { VerifyForm } from "@/components/web/VerifyForm";
+import { VerifyForm } from "@/components/web/auth/VerifyForm";
 import { signUpSchema, type SignUpSchema } from "@/lib/schemas";
 
 export function SignUpForm(): React.ReactNode {

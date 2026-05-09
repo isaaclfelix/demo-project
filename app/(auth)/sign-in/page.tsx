@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
+import { SignInForm } from "@/components/web/auth/SignInForm";
 import { Section } from "@/components/web/Section";
-import { SignInForm } from "@/components/web/SignInForm";
 
 export default function SignInPage() {
   return (
