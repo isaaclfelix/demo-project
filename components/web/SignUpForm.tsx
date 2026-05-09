@@ -2,9 +2,10 @@
 
 import { useTransition } from "react";
 
-import { useAuth, useSignUp } from "@clerk/nextjs";
+import { useSignUp } from "@clerk/nextjs";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { CircleNotchIcon } from "@phosphor-icons/react";
+import { useConvexAuth } from "convex/react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -29,10 +30,13 @@ export function SignUpForm(): React.ReactNode {
     resolver: standardSchemaResolver(signUpSchema),
   });
 
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitLoading, startSubmitTransition] = useTransition();
 
   const { signUp, errors: signUpErrors } = useSignUp();
-  const { isSignedIn } = useAuth();
+
+  const { isLoading: isConvexLoading } = useConvexAuth();
+
+  const isLoading = isSubmitLoading || isConvexLoading;
 
   /**
    * Handles the form submission after zod validation.
@@ -41,7 +45,7 @@ export function SignUpForm(): React.ReactNode {
    * @param {SignUpSchema} data - The form data
    */
   const onSubmit = (data: SignUpSchema) => {
-    startTransition(async () => {
+    startSubmitTransition(async () => {
       const { email: emailAddress, password } = data;
 
       const { error } = await signUp.password({
@@ -60,11 +64,9 @@ export function SignUpForm(): React.ReactNode {
   };
 
   if (
-    signUp.status === "complete" ||
-    isSignedIn ||
-    (signUp.status === "missing_requirements" &&
-      signUp.unverifiedFields.includes("email_address") &&
-      signUp.missingFields.length === 0)
+    signUp.status === "missing_requirements" &&
+    signUp.unverifiedFields.includes("email_address") &&
+    signUp.missingFields.length === 0
   ) {
     return <VerifyForm />;
   }
@@ -85,7 +87,7 @@ export function SignUpForm(): React.ReactNode {
                   id="email-input"
                   placeholder="john.doe@example.com"
                   type="email"
-                  disabled={isPending}
+                  disabled={isLoading}
                   required
                   {...register("email")}
                 />
@@ -105,7 +107,7 @@ export function SignUpForm(): React.ReactNode {
                 <Input
                   id="password-input"
                   type="password"
-                  disabled={isPending}
+                  disabled={isLoading}
                   required
                   {...register("password")}
                 />
@@ -125,7 +127,7 @@ export function SignUpForm(): React.ReactNode {
         </CardContent>
         <CardFooter className="flex flex-col items-start">
           <Field orientation="horizontal">
-            {isPending ? (
+            {isLoading ? (
               <Button disabled>
                 <CircleNotchIcon className="animate-spin" />
                 Creating account...

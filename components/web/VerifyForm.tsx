@@ -63,8 +63,8 @@ export function VerifyForm(): React.ReactNode {
             return;
           }
 
-          // If no session tasks, navigate the signed-in user to the home page.
-          const url = decorateUrl("/");
+          // If no session tasks, navigate the signed-in user to the onboarding route.
+          const url = decorateUrl(`/onboarding?email=${signUp.emailAddress}`);
           if (url.startsWith("http")) {
             window.location.href = url;
           } else {

@@ -1,22 +1,8 @@
-import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
+import { NextFetchEvent, NextRequest } from "next/server";
 
-import {
-  clerkMiddleware,
-  createRouteMatcher,
-  type ClerkMiddlewareAuth,
-} from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-const isAuthRoute = createRouteMatcher(["/sign-up(.*)", "/sign-in(.*)"]);
-
-const clerkMiddlewareHandler = clerkMiddleware(
-  async (auth: ClerkMiddlewareAuth, request: NextRequest) => {
-    const { isAuthenticated } = await auth();
-
-    if (isAuthenticated && isAuthRoute(request)) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  },
-);
+const clerkMiddlewareHandler = clerkMiddleware();
 
 export default async function proxy(
   request: NextRequest,
