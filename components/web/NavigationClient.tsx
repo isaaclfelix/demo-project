@@ -66,18 +66,30 @@ function getNavigationLinks({
   ];
 }
 
-function NavigationSignInButton(): React.ReactNode {
+type NavigationAuthLinkButtonProps = {
+  onNavigate?: () => void;
+};
+
+function NavigationSignInButton({
+  onNavigate,
+}: NavigationAuthLinkButtonProps = {}): React.ReactNode {
   return (
     <Button variant="outline" size="lg" aria-label="Sign in button" asChild>
-      <Link href="/sign-in">Sign in</Link>
+      <Link href="/sign-in" onClick={onNavigate}>
+        Sign in
+      </Link>
     </Button>
   );
 }
 
-function NavigationRegisterButton(): React.ReactNode {
+function NavigationRegisterButton({
+  onNavigate,
+}: NavigationAuthLinkButtonProps = {}): React.ReactNode {
   return (
     <Button variant="outline" size="lg" aria-label="Register button" asChild>
-      <Link href="/sign-up">Sign up</Link>
+      <Link href="/sign-up" onClick={onNavigate}>
+        Sign up
+      </Link>
     </Button>
   );
 }
@@ -151,6 +163,11 @@ export function NavigationClient({
     : isConvexAuthenticated;
 
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const closeMobileNav = () => {
+    setMobileNavOpen(false);
+  };
 
   return (
     <header
@@ -210,7 +227,11 @@ export function NavigationClient({
           )}
         </ButtonGroup>
 
-        <Drawer direction="left">
+        <Drawer
+          direction="left"
+          open={mobileNavOpen}
+          onOpenChange={setMobileNavOpen}
+        >
           <DrawerTrigger asChild>
             <Button variant="outline" className="lg:hidden">
               <ListIcon />
@@ -243,8 +264,8 @@ export function NavigationClient({
                   <NavigationSignOutButton handleSigningOut={setIsSigningOut} />
                 ) : (
                   <>
-                    <NavigationSignInButton />
-                    <NavigationRegisterButton />
+                    <NavigationSignInButton onNavigate={closeMobileNav} />
+                    <NavigationRegisterButton onNavigate={closeMobileNav} />
                   </>
                 )}
               </ButtonGroup>
