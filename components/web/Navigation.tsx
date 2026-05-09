@@ -165,7 +165,7 @@ export function Navigation(): React.ReactNode {
             <DarkModeToggleButton />
           </ButtonGroup>
           <AuthLoading>
-            <Skeleton className="h-9 w-[130px]" />
+            <Skeleton className="h-9 w-36" />
           </AuthLoading>
           <Unauthenticated>
             <ButtonGroup>
