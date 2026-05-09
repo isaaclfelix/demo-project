@@ -75,7 +75,7 @@ function NavigationLoginButton(): React.ReactNode {
 function NavigationRegisterButton(): React.ReactNode {
   return (
     <Button variant="outline" size="lg" aria-label="Register button" asChild>
-      <Link href="/register">Sign up</Link>
+      <Link href="/sign-up">Sign up</Link>
     </Button>
   );
 }
