@@ -26,6 +26,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 200 },
     );
   } catch (error) {
+    // For now just send the error to the console.
+    console.error("Failed to store user in Convex", error);
+
     return NextResponse.json(
       { error: `Request failed with error: ${JSON.stringify(error)}` },
       { status: 500 },
