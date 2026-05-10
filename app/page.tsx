@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Hero } from "@/components/web/Hero";
 import HeroImage from "@/assets/hero_image.webp";
+
+export const metadata: Metadata = {
+  title: "bed.dev | Home",
+  description: "A demo application using Next.js and Convex",
+};
 
 export default function Home() {
   return (
