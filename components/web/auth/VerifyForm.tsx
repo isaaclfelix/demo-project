@@ -88,7 +88,6 @@ export function VerifyForm({
           const response = await fetch("/api/auth/onboarding", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: signUp.emailAddress ?? "" }),
           });
 
           if (!response.ok) {

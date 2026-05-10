@@ -5,10 +5,6 @@ import { fetchMutation } from "convex/nextjs";
 import { getAuthToken } from "@/lib/auth";
 import { api } from "@/convex/_generated/api";
 
-type RequestBody = {
-  email?: string;
-};
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const origin = request.headers.get("origin");
 
@@ -23,15 +19,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const requestBody = (await request.json()) as RequestBody;
-
-    const { email = null } = requestBody;
-
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
-    }
-
-    await fetchMutation(api.users.store, { email }, { token });
+    await fetchMutation(api.users.store, {}, { token });
 
     return NextResponse.json(
       { message: "User stored successfully" },

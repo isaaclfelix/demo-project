@@ -4,6 +4,7 @@ import { v } from "convex/values";
 export default defineSchema({
   users: defineTable({
     email: v.string(),
+    emailVerified: v.boolean(),
     tokenIdentifier: v.string(),
   }).index("by_token", ["tokenIdentifier"]),
 });

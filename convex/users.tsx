@@ -3,10 +3,8 @@ import { ConvexError, v } from "convex/values";
 import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 
 export const store = mutation({
-  args: {
-    email: v.string(),
-  },
-  handler: async (ctx: MutationCtx, { email }) => {
+  args: {},
+  handler: async (ctx: MutationCtx) => {
     const identity = await ctx.auth.getUserIdentity();
 
     if (!identity) {
@@ -28,7 +26,8 @@ export const store = mutation({
 
     // If it's a new identity, create a new `User`.
     return await ctx.db.insert("users", {
-      email,
+      email: identity.email ?? "",
+      emailVerified: identity.emailVerified ?? false,
       tokenIdentifier: identity.tokenIdentifier,
     });
   },
