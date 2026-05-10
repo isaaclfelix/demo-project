@@ -17,7 +17,6 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { VerifyForm } from "@/components/web/auth/VerifyForm";
 import { signUpSchema, type SignUpSchema } from "@/lib/schemas";
 
@@ -79,85 +78,77 @@ export function SignUpForm(): React.ReactNode {
   }
 
   return (
-    <>
-      {isSessionStarting ? (
-        <div className="w-full max-w-sm">
-          <Skeleton className="h-[230px]" />
-        </div>
-      ) : (
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-sm"
-          noValidate
-        >
-          <Card className="w-full">
-            <CardContent>
-              <FieldSet>
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="email-input">Email</FieldLabel>
-                    <Input
-                      id="email-input"
-                      placeholder="john.doe@example.com"
-                      type="email"
-                      disabled={isSubmitLoading}
-                      required
-                      {...register("email")}
-                    />
-                    {schemaErrors.email && (
-                      <FieldError>
-                        <p>{schemaErrors.email.message}</p>
-                      </FieldError>
-                    )}
-                    {signUpErrors.fields.emailAddress && (
-                      <FieldError>
-                        <p>{signUpErrors.fields.emailAddress.message}</p>
-                      </FieldError>
-                    )}
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="password-input">Password</FieldLabel>
-                    <Input
-                      id="password-input"
-                      type="password"
-                      disabled={isSubmitLoading}
-                      required
-                      {...register("password")}
-                    />
-                    {schemaErrors.password && (
-                      <FieldError>
-                        <p>{schemaErrors.password.message}</p>
-                      </FieldError>
-                    )}
-                    {signUpErrors.fields.password && (
-                      <FieldError>
-                        <p>{signUpErrors.fields.password.message}</p>
-                      </FieldError>
-                    )}
-                  </Field>
-                </FieldGroup>
-              </FieldSet>
-            </CardContent>
-            <CardFooter className="flex flex-col items-start">
-              <Field orientation="horizontal">
-                {isSubmitLoading ? (
-                  <Button disabled>
-                    <CircleNotchIcon className="animate-spin" />
-                    Creating account...
-                  </Button>
-                ) : (
-                  <Button type="submit">Create account</Button>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="w-full max-w-sm"
+      noValidate
+    >
+      <Card className="w-full">
+        <CardContent>
+          <FieldSet>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="email-input">Email</FieldLabel>
+                <Input
+                  id="email-input"
+                  placeholder="john.doe@example.com"
+                  type="email"
+                  disabled={isSubmitLoading}
+                  required
+                  {...register("email")}
+                />
+                {schemaErrors.email && (
+                  <FieldError>
+                    <p>{schemaErrors.email.message}</p>
+                  </FieldError>
+                )}
+                {signUpErrors.fields.emailAddress && (
+                  <FieldError>
+                    <p>{signUpErrors.fields.emailAddress.message}</p>
+                  </FieldError>
                 )}
               </Field>
-              <div
-                id="clerk-captcha"
-                className="mb-0! w-full"
-                data-cl-size="flexible"
-              />
-            </CardFooter>
-          </Card>
-        </form>
-      )}
-    </>
+              <Field>
+                <FieldLabel htmlFor="password-input">Password</FieldLabel>
+                <Input
+                  id="password-input"
+                  type="password"
+                  disabled={isSubmitLoading}
+                  required
+                  {...register("password")}
+                />
+                {schemaErrors.password && (
+                  <FieldError>
+                    <p>{schemaErrors.password.message}</p>
+                  </FieldError>
+                )}
+                {signUpErrors.fields.password && (
+                  <FieldError>
+                    <p>{signUpErrors.fields.password.message}</p>
+                  </FieldError>
+                )}
+              </Field>
+            </FieldGroup>
+          </FieldSet>
+        </CardContent>
+        <CardFooter className="flex flex-col items-start">
+          <Field orientation="horizontal">
+            {isSubmitLoading ? (
+              <Button disabled>
+                <CircleNotchIcon className="animate-spin" />
+                Creating account...
+              </Button>
+            ) : (
+              <Button type="submit">Create account</Button>
+            )}
+          </Field>
+          <div
+            id="clerk-captcha"
+            className="mb-0! w-full"
+            data-cl-size="flexible"
+          />
+        </CardFooter>
+      </Card>
+    </form>
   );
 }
