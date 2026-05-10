@@ -92,7 +92,16 @@ export function VerifyForm({
 
           if (!response.ok) {
             // For now just send the error to the console.
-            console.error("Failed to store user in Convex", response.status);
+            try {
+              const decodedResponse = await response.json();
+              console.error(
+                "Failed to store user in Convex",
+                response.status,
+                decodedResponse.error,
+              );
+            } catch (error) {
+              console.error("Failed to decode response", error);
+            }
           }
 
           // If no session tasks, navigate the signed-in user to the onboarding route.
