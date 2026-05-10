@@ -21,7 +21,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { verifySchema, type VerifySchema } from "@/lib/schemas";
 
-export function VerifyForm(): React.ReactNode {
+type VerifyFormProps = {
+  code: string;
+  setCode: (code: string) => void;
+  isSessionStarting: boolean;
+  setIsSessionStarting: (isSessionStarting: boolean) => void;
+};
+
+export function VerifyForm({
+  code,
+  setCode,
+  isSessionStarting,
+  setIsSessionStarting,
+}: VerifyFormProps): React.ReactNode {
   const {
     register,
     handleSubmit,
@@ -30,12 +42,19 @@ export function VerifyForm(): React.ReactNode {
     resolver: standardSchemaResolver(verifySchema),
   });
 
+  const { onChange, onBlur, name, ref } = register("code");
+
   const [isVerifyPending, startVerifyTransition] = useTransition();
   const [isNewCodePending, startNewCodeTransition] = useTransition();
 
   const { signUp, errors: signUpErrors } = useSignUp();
 
   const router = useRouter();
+
+  const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(event);
+    setCode(event.target.value);
+  };
 
   /**
    * Handles the code verification after the email code is sent.
@@ -54,6 +73,8 @@ export function VerifyForm(): React.ReactNode {
       if (signUp.status !== "complete") {
         return;
       }
+
+      setIsSessionStarting(true);
 
       await signUp.finalize({
         navigate: async ({ session, decorateUrl }) => {
@@ -101,9 +122,15 @@ export function VerifyForm(): React.ReactNode {
                 <Input
                   id="code-input"
                   type="text"
-                  disabled={isVerifyPending || isNewCodePending}
+                  disabled={
+                    isVerifyPending || isNewCodePending || isSessionStarting
+                  }
+                  value={code}
+                  onChange={onCodeChange}
+                  onBlur={onBlur}
+                  name={name}
+                  ref={ref}
                   required
-                  {...register("code")}
                 />
                 {schemaErrors.code && (
                   <FieldError>
@@ -121,7 +148,7 @@ export function VerifyForm(): React.ReactNode {
         </CardContent>
         <CardFooter>
           <Field orientation="horizontal">
-            {isVerifyPending ? (
+            {isVerifyPending || isSessionStarting ? (
               <ButtonGroup>
                 <Button disabled>
                   <CircleNotchIcon className="animate-spin" />
