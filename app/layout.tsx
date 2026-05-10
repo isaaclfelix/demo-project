@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { Geist_Mono, JetBrains_Mono } from "next/font/google";
 
-import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 
+import { Footer } from "@/components/web/Footer";
+import { Navigation } from "@/components/web/Navigation";
 import { cn } from "@/lib/utils";
+import ConvexClientProvider from "@/components/convex/ConvexClientProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
-const geistSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
+import "./globals.css";
 
 const geistMonoHeading = Geist_Mono({
   subsets: ["latin"],
@@ -38,7 +38,6 @@ export default function RootLayout({
         "h-full",
         "antialiased",
         "font-mono",
-        geistSans.variable,
         jetbrainsMono.variable,
         geistMonoHeading.variable,
       )}
@@ -51,7 +50,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <ClerkProvider>
+            <ConvexClientProvider>
+              <Navigation />
+              {children}
+              <Footer />
+            </ConvexClientProvider>
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>
