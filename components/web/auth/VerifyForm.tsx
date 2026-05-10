@@ -84,10 +84,21 @@ export function VerifyForm({
             return;
           }
 
+          // Store user in Convex.
+          const response = await fetch("/api/auth/onboarding", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: signUp.emailAddress ?? "" }),
+          });
+
+          if (!response.ok) {
+            // For now just send the error to the console.
+            console.error("Failed to store user in Convex", response.status);
+          }
+
           // If no session tasks, navigate the signed-in user to the onboarding route.
-          const url = decorateUrl(
-            `/api/auth/onboarding?email=${signUp.emailAddress}`,
-          );
+          const url = decorateUrl("/");
+
           if (url.startsWith("http")) {
             window.location.href = url;
           } else {

@@ -5,20 +5,42 @@ import { fetchMutation } from "convex/nextjs";
 import { getAuthToken } from "@/lib/auth";
 import { api } from "@/convex/_generated/api";
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const redirectToHome = NextResponse.redirect(new URL("/", request.url));
+type RequestBody = {
+  email?: string;
+};
+
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const origin = request.headers.get("origin");
+
+  if (origin && new URL(origin).host !== request.nextUrl.host) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const token = await getAuthToken();
 
   if (!token) {
-    return redirectToHome;
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const searchParams = request.nextUrl.searchParams;
+  try {
+    const requestBody = (await request.json()) as RequestBody;
 
-  const email = searchParams.get("email") ?? "";
+    const { email = null } = requestBody;
 
-  await fetchMutation(api.users.store, { email }, { token });
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
 
-  return redirectToHome;
+    await fetchMutation(api.users.store, { email }, { token });
+
+    return NextResponse.json(
+      { message: "User stored successfully" },
+      { status: 200 },
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: `Request failed with error: ${JSON.stringify(error)}` },
+      { status: 500 },
+    );
+  }
 }
