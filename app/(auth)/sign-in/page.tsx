@@ -1,6 +1,14 @@
+import { Metadata } from "next";
+
 import { Separator } from "@/components/ui/separator";
 import { SignInForm } from "@/components/web/auth/SignInForm";
 import { Section } from "@/components/web/Section";
+
+export const metadata: Metadata = {
+  title: "bed.dev | Sign In",
+  description:
+    "Sign in to get started with the demo application using Next.js and Convex",
+};
 
 export default function SignInPage(): React.ReactNode {
   return (
