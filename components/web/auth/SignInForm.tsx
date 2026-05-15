@@ -45,6 +45,7 @@ export function SignInForm(): React.ReactNode {
   const onSubmit = async (data: SignInSchema) => {
     try {
       setIsSubmitting(true);
+      setFormError(null);
 
       const { email: emailAddress, password } = data;
 
@@ -82,7 +83,7 @@ export function SignInForm(): React.ReactNode {
         },
       });
 
-      if (finalizeError !== null) {
+      if (finalizeError) {
         throw new Error(finalizeError.message);
       }
     } catch (error) {
@@ -151,7 +152,7 @@ export function SignInForm(): React.ReactNode {
             </FieldGroup>
           </FieldSet>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col items-start">
           <Field orientation="horizontal" className="flex-wrap">
             {isSubmitting ? (
               <Button disabled>
@@ -162,14 +163,18 @@ export function SignInForm(): React.ReactNode {
               <Button type="submit">Sign in</Button>
             )}
             {formError && (
-              <FieldError>
+              <FieldError className="w-full">
                 <p>{formError}</p>
               </FieldError>
             )}
           </Field>
+          <div
+            id="clerk-captcha"
+            className="mb-0! w-full"
+            data-cl-size="flexible"
+          />
         </CardFooter>
       </Card>
-      <div id="clerk-captcha" />
     </form>
   );
 }
