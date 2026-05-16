@@ -1,12 +1,16 @@
 import { v } from "convex/values";
 
-import { createPostEndpointSchema } from "../lib/schemas/api";
+import {
+  createOrUpdatePostEndpoint as createOrUpdatePostEndpointSchema,
+  removePostEndpoint as removePostEndpointSchema,
+} from "../lib/schemas/api";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { httpAction, internalMutation } from "./_generated/server";
 
-export const createPost = internalMutation({
+export const createOrUpdatePost = internalMutation({
   args: {
+    _id: v.optional(v.id("posts")),
     title: v.string(),
     slug: v.string(),
     content: v.string(),
@@ -21,21 +25,60 @@ export const createPost = internalMutation({
     categoryIds: v.array(v.number()),
     tagIds: v.array(v.number()),
   },
-  handler: async (ctx, args): Promise<Id<"posts"> | false> => {
+  handler: async (ctx, args): Promise<Id<"posts"> | Error> => {
+    if (args._id) {
+      const convexId = args._id;
+
+      delete args._id;
+
+      try {
+        await ctx.db.patch(convexId, { ...args });
+      } catch (error) {
+        return error as Error;
+      }
+
+      return convexId;
+    }
+
     const existingPost = await ctx.db
       .query("posts")
       .withIndex("by_original_id", (q) => q.eq("originalId", args.originalId))
       .unique();
 
     if (existingPost) {
-      return false;
+      return new Error(
+        "Trying to insert a post with an originalId that already exists",
+      );
     }
 
-    return await ctx.db.insert("posts", { ...args });
+    let insertResponse;
+
+    try {
+      insertResponse = await ctx.db.insert("posts", { ...args });
+    } catch (error) {
+      return error as Error;
+    }
+
+    return insertResponse;
   },
 });
 
-export const createPostEndpoint = httpAction(async (ctx, req) => {
+export const removePost = internalMutation({
+  args: {
+    _id: v.id("posts"),
+  },
+  handler: async (ctx, args): Promise<Id<"posts"> | Error> => {
+    try {
+      await ctx.db.delete(args._id);
+    } catch (error) {
+      return error as Error;
+    }
+
+    return args._id;
+  },
+});
+
+export const createOrUpdatePostEndpoint = httpAction(async (ctx, req) => {
   const unauthorizedResponse = new Response(
     JSON.stringify({ error: "Unauthorized" }),
     {
@@ -66,7 +109,8 @@ export const createPostEndpoint = httpAction(async (ctx, req) => {
 
   const requestBody = await req.json();
 
-  const parsedRequestBody = createPostEndpointSchema.safeParse(requestBody);
+  const parsedRequestBody =
+    createOrUpdatePostEndpointSchema.safeParse(requestBody);
 
   if (!parsedRequestBody.success) {
     return new Response(
@@ -77,45 +121,82 @@ export const createPostEndpoint = httpAction(async (ctx, req) => {
     );
   }
 
-  const {
-    title,
-    slug,
-    content,
-    excerpt,
-    type,
-    status,
-    commentStatus,
-    createdAt,
-    updatedAt,
-    originalId,
-    authorId,
-    categoryIds,
-    tagIds,
-  } = parsedRequestBody.data;
+  const { _id: postId, ...postFields } = parsedRequestBody.data;
 
-  const newPostId = await ctx.runMutation(internal.posts.createPost, {
-    title,
-    slug,
-    content,
-    excerpt,
-    type,
-    status,
-    commentStatus,
-    createdAt,
-    updatedAt,
-    originalId,
-    authorId,
-    categoryIds,
-    tagIds,
-  });
+  const mutationResponse = await ctx.runMutation(
+    internal.posts.createOrUpdatePost,
+    {
+      ...postFields,
+      ...(postId !== undefined ? { _id: postId as Id<"posts"> } : {}),
+    },
+  );
 
-  if (!newPostId) {
-    return new Response(JSON.stringify({ error: "Post already exists" }), {
-      status: 400,
+  if (mutationResponse instanceof Error) {
+    return new Response(JSON.stringify({ error: mutationResponse.message }), {
+      status: 500,
     });
   }
 
-  return new Response(JSON.stringify({ id: newPostId }), {
+  return new Response(JSON.stringify({ id: mutationResponse }), {
+    status: 200,
+  });
+});
+
+export const removePostEndpoint = httpAction(async (ctx, req) => {
+  const unauthorizedResponse = new Response(
+    JSON.stringify({ error: "Unauthorized" }),
+    {
+      status: 401,
+    },
+  );
+
+  const authorizationHeader = req.headers.get("Authorization");
+  if (!authorizationHeader) {
+    return unauthorizedResponse;
+  }
+
+  const [scheme, token] = authorizationHeader.split(" ");
+  if (scheme !== "Bearer" || !token) {
+    return unauthorizedResponse;
+  }
+
+  const expectedToken = process.env.POST_TO_CONVEX_SECRET;
+  if (!expectedToken) {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+    });
+  }
+
+  if (token !== expectedToken) {
+    return unauthorizedResponse;
+  }
+
+  const requestBody = await req.json();
+
+  const parsedRequestBody = removePostEndpointSchema.safeParse(requestBody);
+
+  if (!parsedRequestBody.success) {
+    return new Response(
+      JSON.stringify({ error: parsedRequestBody.error.issues }),
+      {
+        status: 400,
+      },
+    );
+  }
+
+  const { _id: postId } = parsedRequestBody.data;
+
+  const mutationResponse = await ctx.runMutation(internal.posts.removePost, {
+    _id: postId as Id<"posts">,
+  });
+
+  if (mutationResponse instanceof Error) {
+    return new Response(JSON.stringify({ error: mutationResponse.message }), {
+      status: 500,
+    });
+  }
+
+  return new Response(JSON.stringify({ id: mutationResponse }), {
     status: 200,
   });
 });

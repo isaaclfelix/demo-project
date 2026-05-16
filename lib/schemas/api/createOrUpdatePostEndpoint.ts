@@ -1,6 +1,7 @@
 import z from "zod";
 
-export const createPostEndpointSchema = z.strictObject({
+export const createOrUpdatePostEndpoint = z.strictObject({
+  _id: z.string().optional(),
   title: z.string(),
   slug: z.string(),
   content: z.string(),
@@ -16,4 +17,6 @@ export const createPostEndpointSchema = z.strictObject({
   tagIds: z.array(z.number()),
 });
 
-export type CreatePostEndpointSchema = z.infer<typeof createPostEndpointSchema>;
+export type CreateOrUpdatePostEndpoint = z.infer<
+  typeof createOrUpdatePostEndpoint
+>;

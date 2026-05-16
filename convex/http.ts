@@ -1,13 +1,19 @@
 import { httpRouter } from "convex/server";
 
-import { createPostEndpoint } from "./posts";
+import { createOrUpdatePostEndpoint, removePostEndpoint } from "./posts";
 
 const http = httpRouter();
 
 http.route({
   path: "/postToConvex/v1/posts",
   method: "POST",
-  handler: createPostEndpoint,
+  handler: createOrUpdatePostEndpoint,
+});
+
+http.route({
+  path: "/postToConvex/v1/posts",
+  method: "DELETE",
+  handler: removePostEndpoint,
 });
 
 export default http;
