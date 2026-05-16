@@ -1,8 +1,8 @@
 import { v } from "convex/values";
 
 import {
-  createOrUpdatePostEndpoint as createOrUpdatePostEndpointSchema,
-  removePostEndpoint as removePostEndpointSchema,
+  createOrUpdatePostEndpointSchema,
+  removePostEndpointSchema,
 } from "../lib/schemas/api";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";

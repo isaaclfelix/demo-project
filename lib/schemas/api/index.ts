@@ -1,9 +1,9 @@
 export {
-  createOrUpdatePostEndpoint,
-  type CreateOrUpdatePostEndpoint,
+  createOrUpdatePostEndpointSchema,
+  type CreateOrUpdatePostEndpointSchema,
 } from "./createOrUpdatePostEndpoint";
 
 export {
-  removePostEndpoint,
-  type RemovePostEndpoint,
+  removePostEndpointSchema,
+  type RemovePostEndpointSchema,
 } from "./removePostEndpoint";

@@ -1,7 +1,7 @@
 import z from "zod";
 
-export const removePostEndpoint = z.strictObject({
+export const removePostEndpointSchema = z.strictObject({
   _id: z.string(),
 });
 
-export type RemovePostEndpoint = z.infer<typeof removePostEndpoint>;
+export type RemovePostEndpointSchema = z.infer<typeof removePostEndpointSchema>;
