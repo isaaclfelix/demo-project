@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useSignUp } from "@clerk/nextjs";
@@ -44,13 +44,19 @@ export function VerifyForm({
 
   const { onChange, onBlur, name, ref } = register("code");
 
-  const [isVerifyPending, startVerifyTransition] = useTransition();
-  const [isNewCodePending, startNewCodeTransition] = useTransition();
+  const [isVerifyPending, setIsVerifyPending] = useState<boolean>(false);
+  const [isNewCodePending, setIsNewCodePending] = useState<boolean>(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const { signUp, errors: signUpErrors } = useSignUp();
 
   const router = useRouter();
 
+  /**
+   * Handles the code change event.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The change event
+   */
   const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange(event);
     setCode(event.target.value);
@@ -62,13 +68,22 @@ export function VerifyForm({
    *
    * @param {VerifySchema} data - The form data
    */
-  const onSubmit = (data: VerifySchema) => {
-    startVerifyTransition(async () => {
+  const onSubmit = async (data: VerifySchema) => {
+    try {
+      setIsVerifyPending(true);
+      setIsNewCodePending(false);
+      setFormError(null);
+
       const { code } = data;
 
-      await signUp.verifications.verifyEmailCode({
-        code,
-      });
+      const { error: verifyEmailCodeError } =
+        await signUp.verifications.verifyEmailCode({
+          code,
+        });
+
+      if (verifyEmailCodeError) {
+        throw new Error(verifyEmailCodeError.message);
+      }
 
       if (signUp.status !== "complete") {
         return;
@@ -76,7 +91,7 @@ export function VerifyForm({
 
       setIsSessionStarting(true);
 
-      await signUp.finalize({
+      const { error: finalizeError } = await signUp.finalize({
         navigate: async ({ session, decorateUrl }) => {
           // Handle session tasks.
           // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
@@ -114,16 +129,48 @@ export function VerifyForm({
           }
         },
       });
-    });
+
+      if (finalizeError) {
+        throw new Error(finalizeError.message);
+      }
+    } catch (error) {
+      setIsVerifyPending(false);
+
+      if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError("An unknown error occurred. Please try again later.");
+        console.error(error);
+      }
+    }
   };
 
   /**
    * Handles the request for a new code.
    */
-  const handleNewCode = () => {
-    startNewCodeTransition(async () => {
-      await signUp.verifications.sendEmailCode();
-    });
+  const handleNewCode = async () => {
+    try {
+      setIsNewCodePending(true);
+      setFormError(null);
+
+      const { error: sendEmailCodeError } =
+        await signUp.verifications.sendEmailCode();
+
+      if (sendEmailCodeError) {
+        throw new Error(sendEmailCodeError.message);
+      }
+
+      setIsNewCodePending(false);
+    } catch (error) {
+      setIsNewCodePending(false);
+
+      if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError("An unknown error occurred. Please try again later.");
+        console.error(error);
+      }
+    }
   };
 
   return (
@@ -165,8 +212,8 @@ export function VerifyForm({
             </FieldGroup>
           </FieldSet>
         </CardContent>
-        <CardFooter>
-          <Field orientation="horizontal">
+        <CardFooter className="flex flex-col items-start">
+          <Field orientation="horizontal" className="flex-wrap">
             {isVerifyPending || isSessionStarting ? (
               <ButtonGroup>
                 <Button disabled>
@@ -192,6 +239,11 @@ export function VerifyForm({
                   I need a new code
                 </Button>
               </ButtonGroup>
+            )}
+            {formError && (
+              <FieldError className="w-full">
+                <p>{formError}</p>
+              </FieldError>
             )}
           </Field>
         </CardFooter>

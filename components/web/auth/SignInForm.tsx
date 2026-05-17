@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useSignIn } from "@clerk/nextjs";
@@ -29,7 +29,8 @@ export function SignInForm(): React.ReactNode {
     resolver: standardSchemaResolver(signInSchema),
   });
 
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const { signIn, errors: signInErrors } = useSignIn();
 
@@ -41,41 +42,60 @@ export function SignInForm(): React.ReactNode {
    *
    * @param {SignInSchema} data - The form data
    */
-  const onSubmit = (data: SignInSchema) => {
-    startTransition(async () => {
+  const onSubmit = async (data: SignInSchema) => {
+    try {
+      setIsSubmitting(true);
+      setFormError(null);
+
       const { email: emailAddress, password } = data;
 
-      const { error } = await signIn.password({
+      const { error: signInError } = await signIn.password({
         emailAddress,
         password,
       });
 
       // If there is an error, simply return.
-      // We'll display the error to the user in the UI.
-      if (error) {
+      // We'll display the error to the user in the UI through 'signInErrors'.
+      if (signInError) {
+        setIsSubmitting(false);
         return;
       }
 
-      if (signIn.status === "complete") {
-        await signIn.finalize({
-          navigate: ({ session, decorateUrl }) => {
-            // Handle session tasks.
-            // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
-            if (session?.currentTask) {
-              return;
-            }
-
-            // If no session tasks, navigate the signed-in user to the home page.
-            const url = decorateUrl("/");
-            if (url.startsWith("http")) {
-              window.location.href = url;
-            } else {
-              router.push(url);
-            }
-          },
-        });
+      if (signIn.status !== "complete") {
+        throw new Error("Sign in failed. Please try again later.");
       }
-    });
+
+      const { error: finalizeError } = await signIn.finalize({
+        navigate: ({ session, decorateUrl }) => {
+          // Handle session tasks.
+          // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
+          if (session?.currentTask) {
+            return;
+          }
+
+          // If no session tasks, navigate the signed-in user to the home page.
+          const url = decorateUrl("/");
+          if (url.startsWith("http")) {
+            window.location.href = url;
+          } else {
+            router.push(url);
+          }
+        },
+      });
+
+      if (finalizeError) {
+        throw new Error(finalizeError.message);
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+
+      if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError("An unknown error occurred. Please try again later.");
+        console.error(error);
+      }
+    }
   };
 
   return (
@@ -94,7 +114,7 @@ export function SignInForm(): React.ReactNode {
                   id="email-input"
                   placeholder="john.doe@example.com"
                   type="email"
-                  disabled={isPending}
+                  disabled={isSubmitting}
                   required
                   {...register("email")}
                 />
@@ -114,7 +134,7 @@ export function SignInForm(): React.ReactNode {
                 <Input
                   id="password-input"
                   type="password"
-                  disabled={isPending}
+                  disabled={isSubmitting}
                   required
                   {...register("password")}
                 />
@@ -132,9 +152,9 @@ export function SignInForm(): React.ReactNode {
             </FieldGroup>
           </FieldSet>
         </CardContent>
-        <CardFooter>
-          <Field orientation="horizontal">
-            {isPending ? (
+        <CardFooter className="flex flex-col items-start">
+          <Field orientation="horizontal" className="flex-wrap">
+            {isSubmitting ? (
               <Button disabled>
                 <CircleNotchIcon className="animate-spin" />
                 Signing in...
@@ -142,10 +162,19 @@ export function SignInForm(): React.ReactNode {
             ) : (
               <Button type="submit">Sign in</Button>
             )}
+            {formError && (
+              <FieldError className="w-full">
+                <p>{formError}</p>
+              </FieldError>
+            )}
           </Field>
+          <div
+            id="clerk-captcha"
+            className="mb-0! w-full"
+            data-cl-size="flexible"
+          />
         </CardFooter>
       </Card>
-      <div id="clerk-captcha" />
     </form>
   );
 }

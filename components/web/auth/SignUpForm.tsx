@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 
 import { useSignUp } from "@clerk/nextjs";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
@@ -29,12 +29,12 @@ export function SignUpForm(): React.ReactNode {
     resolver: standardSchemaResolver(signUpSchema),
   });
 
-  const [isSubmitLoading, startSubmitTransition] = useTransition();
-
-  const { signUp, errors: signUpErrors } = useSignUp();
-
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSessionStarting, setIsSessionStarting] = useState<boolean>(false);
   const [code, setCode] = useState<string>("");
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const { signUp, errors: signUpErrors } = useSignUp();
 
   /**
    * Handles the form submission after zod validation.
@@ -42,23 +42,41 @@ export function SignUpForm(): React.ReactNode {
    *
    * @param {SignUpSchema} data - The form data
    */
-  const onSubmit = (data: SignUpSchema) => {
-    startSubmitTransition(async () => {
+  const onSubmit = async (data: SignUpSchema) => {
+    try {
+      setIsSubmitting(true);
+      setFormError(null);
+
       const { email: emailAddress, password } = data;
 
-      const { error } = await signUp.password({
+      const { error: signUpError } = await signUp.password({
         emailAddress,
         password,
       });
 
       // If there is an error, simply return.
-      // We'll display the error to the user in the UI.
-      if (error) {
+      // We'll display the error to the user in the UI through 'signUpErrors'.
+      if (signUpError) {
+        setIsSubmitting(false);
         return;
       }
 
-      await signUp.verifications.sendEmailCode();
-    });
+      const { error: sendEmailCodeError } =
+        await signUp.verifications.sendEmailCode();
+
+      if (sendEmailCodeError) {
+        throw new Error(sendEmailCodeError.message);
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+
+      if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError("An unknown error occurred. Please try again later.");
+        console.error(error);
+      }
+    }
   };
 
   if (
@@ -93,7 +111,7 @@ export function SignUpForm(): React.ReactNode {
                   id="email-input"
                   placeholder="john.doe@example.com"
                   type="email"
-                  disabled={isSubmitLoading}
+                  disabled={isSubmitting}
                   required
                   {...register("email")}
                 />
@@ -113,7 +131,7 @@ export function SignUpForm(): React.ReactNode {
                 <Input
                   id="password-input"
                   type="password"
-                  disabled={isSubmitLoading}
+                  disabled={isSubmitting}
                   required
                   {...register("password")}
                 />
@@ -132,14 +150,19 @@ export function SignUpForm(): React.ReactNode {
           </FieldSet>
         </CardContent>
         <CardFooter className="flex flex-col items-start">
-          <Field orientation="horizontal">
-            {isSubmitLoading ? (
+          <Field orientation="horizontal" className="flex-wrap">
+            {isSubmitting ? (
               <Button disabled>
                 <CircleNotchIcon className="animate-spin" />
                 Creating account...
               </Button>
             ) : (
               <Button type="submit">Create account</Button>
+            )}
+            {formError && (
+              <FieldError className="w-full">
+                <p>{formError}</p>
+              </FieldError>
             )}
           </Field>
           <div
