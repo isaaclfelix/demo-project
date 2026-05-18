@@ -1,3 +1,5 @@
+"use client";
+
 import { HeadingBlock, SpacingSides } from "@/lib/schemas/blocks";
 
 import { InlineContent } from "./InlineContent";
@@ -8,6 +10,8 @@ type HeadingProps = {
 
 export function Heading({ block }: HeadingProps) {
   const Tag = `h${block.level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+
+  console.log(block);
 
   return (
     <Tag>

@@ -1,4 +1,4 @@
-import { Heading } from "@/components/web/blog/HeadingBlock";
+import { Heading } from "@/components/web/blog/Heading";
 import type { Block } from "@/lib/schemas/blocks";
 
 import { generateBlockKey } from "./generateBlockKey";
