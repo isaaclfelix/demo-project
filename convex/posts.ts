@@ -15,8 +15,18 @@ export const getPosts = query({
     limit: v.number(),
     offset: v.number(),
   },
-  handler: async (ctx, args): Promise<GetPostsResult> => {
-    const posts = await ctx.db.query("posts").collect();
+  handler: async (ctx, args): Promise<GetPostsResult | Error> => {
+    let posts: Doc<"posts">[] = [];
+
+    try {
+      posts = await ctx.db.query("posts").collect();
+    } catch (error) {
+      return error as Error;
+    }
+
+    if (posts.length === 0) {
+      return [];
+    }
 
     const paginatedPosts = posts.slice(args.offset, args.offset + args.limit);
 
@@ -46,6 +56,51 @@ export const getPosts = query({
         },
       ];
     });
+  },
+});
+
+export const getPost = query({
+  args: {
+    id: v.id("posts"),
+  },
+  handler: async (ctx, args): Promise<PostWithParsedContent | Error> => {
+    let post: Doc<"posts"> | null = null;
+
+    try {
+      post = await ctx.db.get(args.id);
+    } catch (error) {
+      return error as Error;
+    }
+
+    if (!post) {
+      return new Error("Post not found");
+    }
+
+    let parsedJson: PostContent = [];
+
+    try {
+      parsedJson = JSON.parse(post.content);
+    } catch (error) {
+      console.error(error);
+      return error as Error;
+    }
+
+    const parsedContent = postContentSchema.safeParse(parsedJson);
+
+    if (!parsedContent.success) {
+      console.error(
+        `Invalid post content from Convex on post ${post._id}.`,
+        parsedContent.error.issues,
+      );
+      return new Error("Invalid post content");
+    }
+
+    const postWithParsedContent: PostWithParsedContent = {
+      ...post,
+      content: parsedContent.data,
+    };
+
+    return postWithParsedContent;
   },
 });
 

@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 
 import { internal } from "../_generated/api";
-import { Id } from "../_generated/dataModel";
+import { Doc, Id } from "../_generated/dataModel";
 import { httpAction, internalMutation } from "../_generated/server";
 import { createPostEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
@@ -23,10 +23,16 @@ export const createPost = internalMutation({
     tagIds: v.array(v.number()),
   },
   handler: async (ctx, args): Promise<Id<"posts"> | Error> => {
-    const existingPost = await ctx.db
-      .query("posts")
-      .withIndex("by_original_id", (q) => q.eq("originalId", args.originalId))
-      .unique();
+    let existingPost: Doc<"posts"> | null = null;
+
+    try {
+      existingPost = await ctx.db
+        .query("posts")
+        .withIndex("by_original_id", (q) => q.eq("originalId", args.originalId))
+        .unique();
+    } catch (error) {
+      return error as Error;
+    }
 
     if (existingPost) {
       return new Error(

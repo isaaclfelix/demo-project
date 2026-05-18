@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -25,6 +24,10 @@ type PostsSectionProps = {
 
 export function PostsSection({ preloadedPosts }: PostsSectionProps) {
   const posts = usePreloadedQuery(preloadedPosts);
+
+  if (posts instanceof Error) {
+    return null;
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -49,7 +52,7 @@ export function PostsSection({ preloadedPosts }: PostsSectionProps) {
           </CardHeader>
           <CardFooter>
             <Button asChild>
-              <Link href="/blog/post-1">Read more</Link>
+              <Link href={`/blog/${post._id}`}>Read more</Link>
             </Button>
           </CardFooter>
         </Card>
