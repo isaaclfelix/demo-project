@@ -16,7 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { parseContentJson } from "@/lib/content";
 import PostImage from "@/assets/hero_image.webp";
 import { api } from "@/convex/_generated/api";
 
@@ -45,10 +44,9 @@ export function PostsSection({ preloadedPosts }: PostsSectionProps) {
             </CardAction>
             <CardTitle>{post.title}</CardTitle>
             <CardDescription className="line-clamp-1">
-              {post.excerpt || post.content}
+              {post.excerpt}
             </CardDescription>
           </CardHeader>
-          <CardContent>{parseContentJson(post.content)}</CardContent>
           <CardFooter>
             <Button asChild>
               <Link href="/blog/post-1">Read more</Link>
