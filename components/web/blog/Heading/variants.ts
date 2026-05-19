@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 
 export const variants = cva(
-  "mb-4 scroll-m-20 tracking-tight text-balance last:mb-0",
+  "mt-8 mb-4 scroll-m-20 tracking-tight text-balance last:mb-0",
   {
     variants: {
       level: {

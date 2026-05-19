@@ -73,7 +73,38 @@ const inlineNodeSchema: z.ZodType<InlineNode> = z.lazy(() =>
   ]),
 );
 
-export const headingBlockSchema = z.object({
+const colorsSchema = z.object({
+  text: presetSchema.nullable(),
+  background: presetSchema.nullable(),
+  link: presetSchema.nullable(),
+});
+
+const typographySchema = z.object({
+  fontSize: presetSchema.nullable(),
+  fontStyle: z.string().nullable(),
+  fontWeight: z.string().nullable(),
+  lineHeight: z.string().nullable(),
+  letterSpacing: z.string().nullable(),
+  textDecoration: z.string().nullable(),
+  textTransform: z.string().nullable(),
+  writingMode: z.string().nullable(),
+});
+
+const spacingSchema = z.object({
+  padding: spacingSidesSchema.nullable(),
+  margin: spacingSidesSchema.nullable(),
+});
+
+/** Shared fields for blocks with rich inline content (heading, paragraph, …). */
+export const richTextBlockFieldsSchema = z.object({
+  textAlign: z.enum(["left", "center", "right"]).nullable(),
+  colors: colorsSchema,
+  typography: typographySchema,
+  spacing: spacingSchema,
+  content: z.array(inlineNodeSchema),
+});
+
+export const headingBlockSchema = richTextBlockFieldsSchema.extend({
   blockName: z.literal("core/heading"),
   level: z.union([
     z.literal(1),
@@ -84,39 +115,30 @@ export const headingBlockSchema = z.object({
     z.literal(6),
   ]),
   align: z.enum(["wide", "full"]).nullable(),
-  textAlign: z.enum(["left", "center", "right"]).nullable(),
-  colors: z.object({
-    text: presetSchema.nullable(),
-    background: presetSchema.nullable(),
-    link: presetSchema.nullable(),
-  }),
-  typography: z.object({
-    fontSize: presetSchema.nullable(),
-    fontStyle: z.string().nullable(),
-    fontWeight: z.string().nullable(),
-    lineHeight: z.string().nullable(),
-    letterSpacing: z.string().nullable(),
-    textDecoration: z.string().nullable(),
-    textTransform: z.string().nullable(),
-    writingMode: z.string().nullable(),
-  }),
-  spacing: z.object({
-    padding: spacingSidesSchema.nullable(),
-    margin: spacingSidesSchema.nullable(),
-  }),
-  content: z.array(inlineNodeSchema),
 });
 
-// One block today; this becomes a discriminated union as more handlers are added.
+export const paragraphBlockSchema = richTextBlockFieldsSchema.extend({
+  blockName: z.literal("core/paragraph"),
+  dropCap: z.boolean(),
+});
+
 export const blockSchema = z.discriminatedUnion("blockName", [
   headingBlockSchema,
+  paragraphBlockSchema,
 ]);
 export const postContentSchema = z.array(blockSchema);
 
 // Single source of truth — replace the manual types above by deriving them.
 export type Preset = z.infer<typeof presetSchema>;
 export type SpacingSides = z.infer<typeof spacingSidesSchema>;
+export type Colors = z.infer<typeof colorsSchema>;
+export type Typography = z.infer<typeof typographySchema>;
+export type Spacing = z.infer<typeof spacingSchema>;
+export type RichTextBlockFields = z.infer<typeof richTextBlockFieldsSchema>;
+
 export type HeadingBlock = z.infer<typeof headingBlockSchema>;
+export type ParagraphBlock = z.infer<typeof paragraphBlockSchema>;
+
 export type Block = z.infer<typeof blockSchema>;
 export type PostContent = z.infer<typeof postContentSchema>;
 export type { InlineNode };

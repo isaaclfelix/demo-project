@@ -1,4 +1,5 @@
 import { Heading } from "@/components/web/blog/Heading";
+import { Paragraph } from "@/components/web/blog/Paragraph";
 import type { Block } from "@/lib/schemas/blocks";
 
 import { generateBlockKey } from "./generateBlockKey";
@@ -9,5 +10,7 @@ export function renderBlock(block: Block, seen: Set<string>): React.ReactNode {
   switch (block.blockName) {
     case "core/heading":
       return <Heading key={key} block={block} />;
+    case "core/paragraph":
+      return <Paragraph key={key} block={block} />;
   }
 }
