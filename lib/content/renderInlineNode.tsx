@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 
+import { Anchor } from "@/components/web/blog/Anchor";
 import { InlineNode } from "@/lib/schemas/blocks";
 
 import { generateInlineNodeKey } from "./generateInlineNodeKey";
@@ -23,14 +24,14 @@ export function renderInlineNode(
       return <em key={key}>{children}</em>;
     case "link":
       return (
-        <a
+        <Anchor
           key={key}
           href={node.attrs.href}
           target={node.attrs.target}
           rel={node.attrs.rel}
         >
           {children}
-        </a>
+        </Anchor>
       );
     case "mark":
       return <mark key={key}>{children}</mark>;

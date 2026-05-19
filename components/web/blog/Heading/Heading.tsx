@@ -2,7 +2,8 @@
 
 import { HeadingBlock, SpacingSides } from "@/lib/schemas/blocks";
 
-import { InlineContent } from "./InlineContent";
+import { InlineContent } from "../InlineContent";
+import { variants } from "./variants";
 
 type HeadingProps = {
   block: HeadingBlock;
@@ -14,7 +15,12 @@ export function Heading({ block }: HeadingProps) {
   console.log(block);
 
   return (
-    <Tag>
+    <Tag
+      className={variants({
+        level: `level-${block.level}`,
+        textAlign: block.textAlign,
+      })}
+    >
       <InlineContent nodes={block.content} />
     </Tag>
   );
