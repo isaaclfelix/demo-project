@@ -1,6 +1,7 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
-import { preloadQuery } from "convex/nextjs";
+import { fetchQuery } from "convex/nextjs";
 
 import { Section } from "@/components/web/Section";
 import { api } from "@/convex/_generated/api";
@@ -13,10 +14,14 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const preloadedPosts = await preloadQuery(api.posts.getPosts, {
+  const posts = await fetchQuery(api.posts.getPosts, {
     offset: 0,
     limit: 10,
   });
+
+  if (posts instanceof Error) {
+    notFound();
+  }
 
   return (
     <Section>
@@ -24,7 +29,7 @@ export default async function BlogPage() {
       <p className="mb-8 text-center text-sm text-gray-500">
         A collection of posts regarding the Convex + Next.js setup.
       </p>
-      <PostsSection preloadedPosts={preloadedPosts} />
+      <PostsSection posts={posts} />
     </Section>
   );
 }

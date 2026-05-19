@@ -1,9 +1,5 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-
-import { Preloaded, usePreloadedQuery } from "convex/react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,19 +12,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import PostImage from "@/assets/hero_image.webp";
-import { api } from "@/convex/_generated/api";
+import { PostWithParsedContent } from "@/convex/posts";
 
 type PostsSectionProps = {
-  preloadedPosts: Preloaded<typeof api.posts.getPosts>;
+  posts: PostWithParsedContent[];
 };
 
-export function PostsSection({ preloadedPosts }: PostsSectionProps) {
-  const posts = usePreloadedQuery(preloadedPosts);
-
-  if (posts instanceof Error) {
-    return null;
-  }
-
+export function PostsSection({ posts }: PostsSectionProps) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {posts.map((post) => (
@@ -46,7 +36,7 @@ export function PostsSection({ preloadedPosts }: PostsSectionProps) {
               <Badge variant="secondary">Featured</Badge>
             </CardAction>
             <CardTitle>{post.title}</CardTitle>
-            <CardDescription className="line-clamp-1">
+            <CardDescription className="line-clamp-2">
               {post.excerpt}
             </CardDescription>
           </CardHeader>

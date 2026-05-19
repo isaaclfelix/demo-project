@@ -1,10 +1,31 @@
-import { preloadQuery } from "convex/nextjs";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { Section } from "@/components/web/Section";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { cachedGetPost } from "@/lib/content/cachedGetPost";
 
 import { PostCard } from "./_components/PostCard";
+
+type GenerateMetadataProps = {
+  params: Promise<{ postId: string }>;
+};
+
+export async function generateMetadata({
+  params,
+}: GenerateMetadataProps): Promise<Metadata> {
+  const { postId } = await params;
+
+  const post = await cachedGetPost(postId);
+
+  if (post instanceof Error) {
+    return {};
+  }
+
+  return {
+    title: `bed.dev | ${post.title}`,
+    description: post.excerpt,
+  };
+}
 
 type PostPageParams = {
   params: Promise<{ postId: string }>;
@@ -15,13 +36,15 @@ export default async function PostPage({
 }: PostPageParams): Promise<React.ReactNode> {
   const { postId } = await params;
 
-  const preloadedPost = await preloadQuery(api.posts.getPost, {
-    id: postId as Id<"posts">,
-  });
+  const post = await cachedGetPost(postId);
+
+  if (post instanceof Error) {
+    notFound();
+  }
 
   return (
     <Section>
-      <PostCard post={preloadedPost} />
+      <PostCard post={post} />
     </Section>
   );
 }

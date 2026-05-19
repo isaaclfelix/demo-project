@@ -11,7 +11,7 @@ export function Section({
   children,
 }: SectionProps): React.ReactNode {
   return (
-    <section className={cn("mx-auto max-w-7xl p-6 lg:px-8", className)}>
+    <section className={cn("mx-auto max-w-7xl p-6 lg:p-8", className)}>
       {children}
     </section>
   );

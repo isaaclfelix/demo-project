@@ -4,7 +4,7 @@ import { PostContent, postContentSchema } from "../lib/schemas/blocks";
 import { Doc } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 
-type PostWithParsedContent = Omit<Doc<"posts">, "content"> & {
+export type PostWithParsedContent = Omit<Doc<"posts">, "content"> & {
   content: PostContent;
 };
 
