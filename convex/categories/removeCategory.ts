@@ -40,7 +40,7 @@ export const removeCategory = internalMutation({
 
     for (const post of posts) {
       await ctx.db.patch(post._id, {
-        permalinkCategoryOriginalId: undefined,
+        permalinkCategoryOriginalId: 0,
       });
     }
 
