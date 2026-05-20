@@ -22,7 +22,8 @@ export function PostsSection({ posts }: PostsSectionProps) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {posts.map((post) => (
-        <Card key={post._id} className="mx-auto w-full max-w-sm pt-0">
+        <Card key={post._id} className="mx-auto w-full max-w-sm">
+          {/*
           <div className="relative aspect-video bg-black/35">
             <Image
               src={PostImage}
@@ -31,10 +32,13 @@ export function PostsSection({ posts }: PostsSectionProps) {
               fill
             />
           </div>
+          */}
           <CardHeader>
+            {/*
             <CardAction>
               <Badge variant="secondary">Featured</Badge>
             </CardAction>
+            */}
             <CardTitle>{post.title}</CardTitle>
             <CardDescription className="line-clamp-2">
               {post.excerpt}
