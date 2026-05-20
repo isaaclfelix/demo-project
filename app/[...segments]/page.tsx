@@ -1,11 +1,10 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { fetchQuery } from "convex/nextjs";
-
 import { Breadcrumbs } from "@/components/web/blog/Breadcrumbs";
 import { Section } from "@/components/web/Section";
-import { api } from "@/convex/_generated/api";
+import { cachedGetCategoryBreadcrumbs } from "@/lib/content/cachedGetCategoryBreadcrumbs";
+import { cachedGetPostByCategoryPathAndSlug } from "@/lib/content/cachedGetPostByCategoryPathAndSlug";
 
 import { PostCard } from "../blog/[postId]/_components/PostCard";
 
@@ -20,10 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const pathKey = `${segments[0]}/${segments[1]}`;
   const slug = segments[2];
-  const post = await fetchQuery(api.posts.getPostByCategoryPathAndSlug, {
-    pathKey,
-    slug,
-  });
+  const post = await cachedGetPostByCategoryPathAndSlug(pathKey, slug);
 
   if (!post) {
     return {};
@@ -45,20 +41,13 @@ export default async function RootPostPage({ params }: Props) {
   const pathKey = `${segments[0]}/${segments[1]}`;
   const slug = segments[2];
 
-  const post = await fetchQuery(api.posts.getPostByCategoryPathAndSlug, {
-    pathKey,
-    slug,
-  });
+  const post = await cachedGetPostByCategoryPathAndSlug(pathKey, slug);
 
   if (!post) {
     notFound();
   }
 
-  const crumbs = await fetchQuery(api.categories.getCategoryBreadcrumbs, {
-    pathKey,
-  });
-
-  const breadcrumbItems = crumbs ?? [];
+  const breadcrumbItems = await cachedGetCategoryBreadcrumbs(pathKey);
 
   return (
     <Section>

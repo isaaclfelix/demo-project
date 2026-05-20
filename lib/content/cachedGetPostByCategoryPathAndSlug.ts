@@ -3,15 +3,16 @@ import { cache } from "react";
 import { fetchQuery } from "convex/nextjs";
 
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import type { PostWithParsedContentAndCanonicalPath } from "@/convex/posts";
 
-export const cachedGetPost = cache(
+export const cachedGetPostByCategoryPathAndSlug = cache(
   async (
-    postId: string,
+    pathKey: string,
+    slug: string,
   ): Promise<PostWithParsedContentAndCanonicalPath | null> => {
-    return await fetchQuery(api.posts.getPost, {
-      id: postId as Id<"posts">,
+    return await fetchQuery(api.posts.getPostByCategoryPathAndSlug, {
+      pathKey,
+      slug,
     });
   },
 );
