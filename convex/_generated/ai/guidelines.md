@@ -8,9 +8,7 @@
 
 ```typescript
 import { httpRouter } from "convex/server";
-
 import { httpAction } from "./_generated/server";
-
 const http = httpRouter();
 http.route({
   path: "/echo",
@@ -29,9 +27,8 @@ http.route({
 - Below is an example of an array validator:
 
 ```typescript
-import { v } from "convex/values";
-
 import { mutation } from "./_generated/server";
+import { v } from "convex/values";
 
 export default mutation({
   args: {
@@ -126,11 +123,9 @@ export const g = query({
 - Define pagination using the following syntax:
 
 ```ts
-import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
-
-import { mutation, query } from "./_generated/server";
-
+import { query, mutation } from "./_generated/server";
+import { paginationOptsValidator } from "convex/server";
 export const listWithExtraArg = query({
   args: { paginationOpts: paginationOptsValidator, author: v.string() },
   handler: async (ctx, args) => {
@@ -209,8 +204,8 @@ The `useAuth` prop must return `{ isLoading, isAuthenticated, fetchAccessToken }
 - If you need to define a `Record` make sure that you correctly provide the type of the key and value in the type. For example a validator `v.record(v.id('users'), v.string())` would have the type `Record<Id<'users'>, string>`. Below is an example of using `Record` with an `Id` type in a query:
 
 ```ts
-import { Doc, Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const exampleQuery = query({
   args: { userIds: v.array(v.id("users")) },
@@ -292,7 +287,6 @@ export const exampleAction = action({
 
 ```ts
 import { cronJobs } from "convex/server";
-
 import { internal } from "./_generated/api";
 import { internalAction } from "./_generated/server";
 
@@ -324,7 +318,6 @@ Test files go inside the `convex/` directory. You must pass a module map from `i
 /// <reference types="vite/client" />
 import { convexTest } from "convex-test";
 import { expect, test } from "vitest";
-
 import { api } from "./_generated/api";
 import schema from "./schema";
 
