@@ -1,4 +1,5 @@
 import { Heading } from "@/components/web/blog/Heading";
+import { List } from "@/components/web/blog/List";
 import { Paragraph } from "@/components/web/blog/Paragraph";
 import type { Block } from "@/lib/schemas/blocks";
 
@@ -12,5 +13,7 @@ export function renderBlock(block: Block, seen: Set<string>): React.ReactNode {
       return <Heading key={key} block={block} />;
     case "core/paragraph":
       return <Paragraph key={key} block={block} />;
+    case "core/list":
+      return <List key={key} block={block} />;
   }
 }

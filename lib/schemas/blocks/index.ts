@@ -122,9 +122,53 @@ export const paragraphBlockSchema = richTextBlockFieldsSchema.extend({
   dropCap: z.boolean(),
 });
 
+/** Nested list inside a list item (no blockName or block-level styles). */
+type NestedList = {
+  ordered: boolean;
+  reversed: boolean;
+  start: number | null;
+  type: string | null;
+  items: ListItem[];
+};
+
+const nestedListSchema: z.ZodType<NestedList> = z.lazy(() =>
+  z.object({
+    ordered: z.boolean(),
+    reversed: z.boolean(),
+    start: z.number().nullable(),
+    type: z.string().nullable(),
+    items: z.array(listItemSchema),
+  }),
+);
+
+type ListItem = {
+  content: InlineNode[];
+  nested: NestedList | null;
+};
+
+const listItemSchema: z.ZodType<ListItem> = z.lazy(() =>
+  z.object({
+    content: z.array(inlineNodeSchema),
+    nested: nestedListSchema.nullable(),
+  }),
+);
+
+export const listBlockSchema = z.object({
+  blockName: z.literal("core/list"),
+  ordered: z.boolean(),
+  reversed: z.boolean(),
+  start: z.number().nullable(),
+  type: z.string().nullable(),
+  colors: colorsSchema,
+  typography: typographySchema,
+  spacing: spacingSchema,
+  items: z.array(listItemSchema),
+});
+
 export const blockSchema = z.discriminatedUnion("blockName", [
   headingBlockSchema,
   paragraphBlockSchema,
+  listBlockSchema,
 ]);
 export const postContentSchema = z.array(blockSchema);
 
@@ -138,7 +182,8 @@ export type RichTextBlockFields = z.infer<typeof richTextBlockFieldsSchema>;
 
 export type HeadingBlock = z.infer<typeof headingBlockSchema>;
 export type ParagraphBlock = z.infer<typeof paragraphBlockSchema>;
+export type ListBlock = z.infer<typeof listBlockSchema>;
 
 export type Block = z.infer<typeof blockSchema>;
 export type PostContent = z.infer<typeof postContentSchema>;
-export type { InlineNode };
+export type { InlineNode, ListItem, NestedList };
