@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { Section } from "@/components/web/Section";
 import { cachedGetPost } from "@/lib/content/cachedGetPost";
@@ -40,6 +40,10 @@ export default async function PostPage({
 
   if (post instanceof Error) {
     notFound();
+  }
+
+  if (post.canonicalPath) {
+    redirect(post.canonicalPath);
   }
 
   return (

@@ -27,7 +27,13 @@ export function PostsSection({ posts }: PostsSectionProps) {
           </CardHeader>
           <CardFooter>
             <Button asChild>
-              <Link href={`/blog/${post._id}`}>Read more</Link>
+              <Link
+                href={
+                  post.canonicalPath ?? `/blog/${encodeURIComponent(post._id)}`
+                }
+              >
+                Read more
+              </Link>
             </Button>
           </CardFooter>
         </Card>

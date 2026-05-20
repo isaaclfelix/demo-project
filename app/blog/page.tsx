@@ -16,12 +16,11 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const posts = await fetchQuery(api.posts.getPosts, {
-    offset: 0,
-    limit: 10,
+  const result = await fetchQuery(api.posts.getPosts, {
+    paginationOpts: { numItems: 10, cursor: null },
   });
 
-  if (posts instanceof Error) {
+  if (result instanceof Error) {
     notFound();
   }
 
@@ -38,7 +37,7 @@ export default async function BlogPage() {
       <p className="mb-8 text-center text-sm text-muted-foreground">
         A collection of posts regarding the Convex + Next.js setup.
       </p>
-      <PostsSection posts={posts} />
+      <PostsSection posts={result.page} />
     </Section>
   );
 }
