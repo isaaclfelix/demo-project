@@ -1,5 +1,3 @@
-"use client";
-
 import { ParagraphBlock } from "@/lib/schemas/blocks";
 
 import { InlineContent } from "../InlineContent";

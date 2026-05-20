@@ -1,5 +1,3 @@
-"use client";
-
 import {
   ListBlock,
   ListItem as ListItemData,

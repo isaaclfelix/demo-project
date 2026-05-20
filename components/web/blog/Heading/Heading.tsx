@@ -1,5 +1,3 @@
-"use client";
-
 import { HeadingBlock } from "@/lib/schemas/blocks";
 
 import { InlineContent } from "../InlineContent";
