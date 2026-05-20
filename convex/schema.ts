@@ -19,7 +19,7 @@ export default defineSchema({
     updatedAt: v.string(),
     originalId: v.number(),
     authorId: v.number(),
-    permalinkCategoryOriginalId: v.optional(v.number()),
+    permalinkCategoryOriginalId: v.number(),
   })
     .index("by_original_id", ["originalId"])
     .index("by_slug", ["slug"])
