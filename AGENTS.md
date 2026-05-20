@@ -19,3 +19,5 @@ Convex agent skills for common tasks can be installed by running
 `npx convex ai-files install`.
 
 <!-- convex-ai-end -->
+
+Always confirm the OS you're running in before running bash or shell scripts. If you're running on Windows, create commands for Powershell.
