@@ -6,7 +6,7 @@ import { httpAction, internalMutation } from "../_generated/server";
 import { createPostEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
 import { mutationErrorResponse } from "../lib/mutationErrorResponse";
-import { syncPostTaxonomy } from "../lib/syncTaxonomy";
+import { deletePostAndLinks, syncPostTaxonomy } from "../lib/syncTaxonomy";
 
 const categoryTerm = v.object({
   originalId: v.number(),
@@ -66,7 +66,7 @@ export const createPost = internalMutation({
         updatedAt: args.updatedAt,
       });
     } catch (error) {
-      await ctx.db.delete(postId);
+      await deletePostAndLinks(ctx, postId);
       throw error;
     }
 

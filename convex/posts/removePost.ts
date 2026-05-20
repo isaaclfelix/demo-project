@@ -6,16 +6,14 @@ import { httpAction, internalMutation } from "../_generated/server";
 import { removePostEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
 import { mutationErrorResponse } from "../lib/mutationErrorResponse";
-import { clearPostCategoryLinks, clearPostTagLinks } from "../lib/syncTaxonomy";
+import { deletePostAndLinks } from "../lib/syncTaxonomy";
 
 export const removePost = internalMutation({
   args: {
     _id: v.id("posts"),
   },
   handler: async (ctx, args): Promise<Id<"posts">> => {
-    await clearPostCategoryLinks(ctx, args._id);
-    await clearPostTagLinks(ctx, args._id);
-    await ctx.db.delete(args._id);
+    await deletePostAndLinks(ctx, args._id);
 
     return args._id;
   },

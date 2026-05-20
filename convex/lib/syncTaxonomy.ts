@@ -217,6 +217,16 @@ export async function clearPostTagLinks(
   }
 }
 
+/** Remove postCategories/postTags for a post, then delete the post document. */
+export async function deletePostAndLinks(
+  ctx: MutationCtx,
+  postId: Id<"posts">,
+): Promise<void> {
+  await clearPostCategoryLinks(ctx, postId);
+  await clearPostTagLinks(ctx, postId);
+  await ctx.db.delete(postId);
+}
+
 export async function syncPostCategories(
   ctx: MutationCtx,
   postId: Id<"posts">,
