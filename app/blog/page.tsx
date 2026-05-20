@@ -25,8 +25,10 @@ export default async function BlogPage() {
 
   return (
     <Section>
-      <h1 className="mb-4 text-center text-2xl font-bold">Blog</h1>
-      <p className="mb-8 text-center text-sm text-gray-500">
+      <h1 className="mb-4 text-center text-4xl font-bold tracking-tight text-balance">
+        Blog
+      </h1>
+      <p className="mb-8 text-center text-sm text-muted-foreground">
         A collection of posts regarding the Convex + Next.js setup.
       </p>
       <PostsSection posts={posts} />
