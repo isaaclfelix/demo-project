@@ -4,6 +4,7 @@ import { internal } from "../_generated/api";
 import { httpAction, internalMutation } from "../_generated/server";
 import { removeTagEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
+import { mutationErrorResponse } from "../lib/mutationErrorResponse";
 
 export const removeTag = internalMutation({
   args: {
@@ -48,11 +49,8 @@ export const removeTagEndpoint = httpAction(async (ctx, req) => {
 
   try {
     await ctx.runMutation(internal.tags.removeTag, parsed.data);
-  } catch (e) {
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Failed" }),
-      { status: 500 },
-    );
+  } catch (error) {
+    return mutationErrorResponse(error);
   }
 
   return new Response(JSON.stringify({ ok: true }), { status: 200 });

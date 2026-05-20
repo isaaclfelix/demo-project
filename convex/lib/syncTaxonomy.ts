@@ -1,3 +1,5 @@
+import { ConvexError } from "convex/values";
+
 import { Doc, Id } from "../_generated/dataModel";
 import { MutationCtx } from "../_generated/server";
 
@@ -261,14 +263,12 @@ export async function syncPostTaxonomy(
   await syncPostCategories(ctx, postId, args.categories, args.updatedAt);
   await syncPostTags(ctx, postId, args.tags);
 
-  if (args.permalinkCategoryOriginalId !== undefined) {
-    const err = await assertPermalinkCategoryValid(
-      ctx,
-      args.permalinkCategoryOriginalId,
-    );
+  const err = await assertPermalinkCategoryValid(
+    ctx,
+    args.permalinkCategoryOriginalId,
+  );
 
-    if (err) {
-      throw new Error(err);
-    }
+  if (err) {
+    throw new ConvexError(err);
   }
 }

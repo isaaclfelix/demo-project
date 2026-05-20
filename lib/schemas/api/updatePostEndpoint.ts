@@ -18,7 +18,7 @@ export const updatePostEndpointSchema = z
     authorId: z.number(),
     categories: z.array(categoryTermSchema),
     tags: z.array(tagTermSchema),
-    permalinkCategoryOriginalId: z.number().optional(),
+    permalinkCategoryOriginalId: z.number(),
   })
   .superRefine((data, ctx) => {
     if (data.permalinkCategoryOriginalId === undefined) {

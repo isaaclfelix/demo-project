@@ -15,16 +15,20 @@ type Props = { params: Promise<{ segments: string[] }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { segments } = await params;
+
   if (segments.length < 1) {
     return {};
   }
+
   const pathKey = segments.join("/");
   const category = await fetchQuery(api.categories.getCategoryByPathKey, {
     pathKey,
   });
+
   if (!category) {
     return {};
   }
+
   return {
     title: `bed.dev | ${category.name}`,
     description: `Posts in ${category.name}`,
@@ -56,10 +60,6 @@ export default async function CategoryArchivePage({ params }: Props) {
     categoryOriginalId: category.originalId,
     paginationOpts: { numItems: 10, cursor: null },
   });
-
-  if (listing instanceof Error) {
-    notFound();
-  }
 
   return (
     <Section>

@@ -13,18 +13,22 @@ type Props = { params: Promise<{ segments: string[] }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { segments } = await params;
+
   if (segments.length !== 3) {
     return {};
   }
+
   const pathKey = `${segments[0]}/${segments[1]}`;
   const slug = segments[2];
   const post = await fetchQuery(api.posts.getPostByCategoryPathAndSlug, {
     pathKey,
     slug,
   });
-  if (!post || post instanceof Error) {
+
+  if (!post) {
     return {};
   }
+
   return {
     title: `bed.dev | ${post.title}`,
     description: post.excerpt,
@@ -46,7 +50,7 @@ export default async function RootPostPage({ params }: Props) {
     slug,
   });
 
-  if (!post || post instanceof Error) {
+  if (!post) {
     notFound();
   }
 

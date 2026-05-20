@@ -14,6 +14,7 @@ import type * as categories_removeCategory from "../categories/removeCategory.js
 import type * as categories_updateCategory from "../categories/updateCategory.js";
 import type * as http from "../http.js";
 import type * as httpAuth from "../httpAuth.js";
+import type * as lib_mutationErrorResponse from "../lib/mutationErrorResponse.js";
 import type * as lib_parsePostContent from "../lib/parsePostContent.js";
 import type * as lib_syncTaxonomy from "../lib/syncTaxonomy.js";
 import type * as posts from "../posts.js";
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   "categories/updateCategory": typeof categories_updateCategory;
   http: typeof http;
   httpAuth: typeof httpAuth;
+  "lib/mutationErrorResponse": typeof lib_mutationErrorResponse;
   "lib/parsePostContent": typeof lib_parsePostContent;
   "lib/syncTaxonomy": typeof lib_syncTaxonomy;
   posts: typeof posts;

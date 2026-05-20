@@ -5,6 +5,7 @@ import { Id } from "../_generated/dataModel";
 import { httpAction, internalMutation } from "../_generated/server";
 import { updatePostEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
+import { mutationErrorResponse } from "../lib/mutationErrorResponse";
 import { syncPostTaxonomy } from "../lib/syncTaxonomy";
 
 const categoryTerm = v.object({
@@ -36,9 +37,9 @@ export const updatePost = internalMutation({
     authorId: v.number(),
     categories: v.array(categoryTerm),
     tags: v.array(tagTerm),
-    permalinkCategoryOriginalId: v.optional(v.number()),
+    permalinkCategoryOriginalId: v.number(),
   },
-  handler: async (ctx, args): Promise<Id<"posts"> | Error> => {
+  handler: async (ctx, args): Promise<Id<"posts">> => {
     const convexId = args._id;
 
     const {
@@ -49,25 +50,17 @@ export const updatePost = internalMutation({
       ...postPatch
     } = args;
 
-    try {
-      await ctx.db.patch(convexId, {
-        ...postPatch,
-        permalinkCategoryOriginalId,
-      });
-    } catch (error) {
-      return error as Error;
-    }
+    await ctx.db.patch(convexId, {
+      ...postPatch,
+      permalinkCategoryOriginalId,
+    });
 
-    try {
-      await syncPostTaxonomy(ctx, convexId, {
-        categories,
-        tags,
-        permalinkCategoryOriginalId,
-        updatedAt: args.updatedAt,
-      });
-    } catch (error) {
-      return error as Error;
-    }
+    await syncPostTaxonomy(ctx, convexId, {
+      categories,
+      tags,
+      permalinkCategoryOriginalId,
+      updatedAt: args.updatedAt,
+    });
 
     return convexId;
   },
@@ -94,22 +87,16 @@ export const updatePostEndpoint = httpAction(async (ctx, req) => {
 
   const { _id: postId, ...postFields } = parsedRequestBody.data;
 
-  const mutationResponse: Id<"posts"> | Error = await ctx.runMutation(
-    internal.posts.updatePost,
-    {
+  try {
+    const id = await ctx.runMutation(internal.posts.updatePost, {
       ...postFields,
       _id: postId as Id<"posts">,
-    },
-  );
-
-  if (mutationResponse instanceof Error) {
-    const isClient = mutationResponse.message.includes("Permalink category");
-    return new Response(JSON.stringify({ error: mutationResponse.message }), {
-      status: isClient ? 400 : 500,
     });
-  }
 
-  return new Response(JSON.stringify({ id: mutationResponse }), {
-    status: 200,
-  });
+    return new Response(JSON.stringify({ id }), {
+      status: 200,
+    });
+  } catch (error) {
+    return mutationErrorResponse(error);
+  }
 });

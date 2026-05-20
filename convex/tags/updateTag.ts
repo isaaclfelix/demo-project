@@ -4,6 +4,7 @@ import { internal } from "../_generated/api";
 import { httpAction, internalMutation } from "../_generated/server";
 import { updateTagEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
+import { mutationErrorResponse } from "../lib/mutationErrorResponse";
 import { upsertTag } from "../lib/syncTaxonomy";
 
 export const updateTag = internalMutation({
@@ -34,11 +35,8 @@ export const updateTagEndpoint = httpAction(async (ctx, req) => {
 
   try {
     await ctx.runMutation(internal.tags.updateTag, parsed.data);
-  } catch (e) {
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Failed" }),
-      { status: 500 },
-    );
+  } catch (error) {
+    return mutationErrorResponse(error);
   }
 
   return new Response(JSON.stringify({ ok: true }), { status: 200 });

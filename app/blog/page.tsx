@@ -20,10 +20,6 @@ export default async function BlogPage() {
     paginationOpts: { numItems: 10, cursor: null },
   });
 
-  if (result instanceof Error) {
-    notFound();
-  }
-
   return (
     <Section>
       <h1

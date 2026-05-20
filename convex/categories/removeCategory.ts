@@ -4,6 +4,7 @@ import { internal } from "../_generated/api";
 import { httpAction, internalMutation } from "../_generated/server";
 import { removeCategoryEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
+import { mutationErrorResponse } from "../lib/mutationErrorResponse";
 
 export const removeCategory = internalMutation({
   args: {
@@ -63,11 +64,8 @@ export const removeCategoryEndpoint = httpAction(async (ctx, req) => {
 
   try {
     await ctx.runMutation(internal.categories.removeCategory, parsed.data);
-  } catch (e) {
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Failed" }),
-      { status: 500 },
-    );
+  } catch (error) {
+    return mutationErrorResponse(error);
   }
 
   return new Response(JSON.stringify({ ok: true }), { status: 200 });

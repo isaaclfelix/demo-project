@@ -5,10 +5,10 @@ import { query } from "./_generated/server";
 import {
   canonicalPathForPostDoc,
   parsePostContentDoc,
-  type PostWithParsedContent,
+  type PostWithParsedContentAndCanonicalPath,
 } from "./lib/parsePostContent";
 
-export type { PostWithParsedContent };
+export type { PostWithParsedContentAndCanonicalPath };
 
 export const getCategoryByPathKey = query({
   args: { pathKey: v.string() },
@@ -69,18 +69,31 @@ export const listPostsByCategory = query({
       .order("desc")
       .paginate(paginationOpts);
 
-    const enriched: PostWithParsedContent[] = [];
+    const enriched: PostWithParsedContentAndCanonicalPath[] = [];
 
     for (const link of result.page) {
       const post = await ctx.db.get(link.postId);
+
       if (!post) {
         continue;
       }
-      const path = await canonicalPathForPostDoc(ctx, post);
-      const parsed = parsePostContentDoc(post, path);
-      if (parsed) {
-        enriched.push(parsed);
+
+      const parsed = parsePostContentDoc(post);
+
+      if (!parsed) {
+        continue;
       }
+
+      const path = await canonicalPathForPostDoc(ctx, post);
+
+      if (!path) {
+        continue;
+      }
+
+      enriched.push({
+        ...parsed,
+        canonicalPath: path,
+      });
     }
 
     return {

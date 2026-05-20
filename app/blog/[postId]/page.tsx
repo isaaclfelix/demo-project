@@ -17,7 +17,7 @@ export async function generateMetadata({
 
   const post = await cachedGetPost(postId);
 
-  if (post instanceof Error) {
+  if (!post) {
     return {};
   }
 
@@ -38,7 +38,7 @@ export default async function PostPage({
 
   const post = await cachedGetPost(postId);
 
-  if (post instanceof Error) {
+  if (!post) {
     notFound();
   }
 

@@ -9,7 +9,7 @@ import { PostWithParsedContentAndCanonicalPath } from "@/convex/posts";
 export const cachedGetPost = cache(
   async (
     postId: string,
-  ): Promise<PostWithParsedContentAndCanonicalPath | Error> => {
+  ): Promise<PostWithParsedContentAndCanonicalPath | null> => {
     return await fetchQuery(api.posts.getPost, {
       id: postId as Id<"posts">,
     });

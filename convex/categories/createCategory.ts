@@ -4,6 +4,7 @@ import { internal } from "../_generated/api";
 import { httpAction, internalMutation } from "../_generated/server";
 import { createCategoryEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
+import { mutationErrorResponse } from "../lib/mutationErrorResponse";
 import { upsertCategory } from "../lib/syncTaxonomy";
 
 export const createCategory = internalMutation({
@@ -35,11 +36,8 @@ export const createCategoryEndpoint = httpAction(async (ctx, req) => {
 
   try {
     await ctx.runMutation(internal.categories.createCategory, parsed.data);
-  } catch (e) {
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Failed" }),
-      { status: 500 },
-    );
+  } catch (error) {
+    return mutationErrorResponse(error);
   }
 
   return new Response(JSON.stringify({ ok: true }), { status: 200 });

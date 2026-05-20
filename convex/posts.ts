@@ -2,7 +2,6 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
 import { postCanonicalPath } from "../lib/content/postPath";
-import { Doc } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import {
   canonicalPathForPostDoc,
@@ -59,29 +58,23 @@ export const getPost = query({
   handler: async (
     ctx,
     args,
-  ): Promise<PostWithParsedContentAndCanonicalPath | Error> => {
-    let post: Doc<"posts"> | null = null;
-
-    try {
-      post = await ctx.db.get(args.id);
-    } catch (error) {
-      return error as Error;
-    }
+  ): Promise<PostWithParsedContentAndCanonicalPath | null> => {
+    const post = await ctx.db.get(args.id);
 
     if (!post) {
-      return new Error("Post not found");
+      return null;
     }
 
     const parsed = parsePostContentDoc(post);
 
     if (!parsed) {
-      return new Error("Invalid post content");
+      return null;
     }
 
     const canonicalPath = await canonicalPathForPostDoc(ctx, post);
 
     if (!canonicalPath) {
-      return new Error("Canonical path not found");
+      return null;
     }
 
     return {
@@ -99,7 +92,7 @@ export const getPostByCategoryPathAndSlug = query({
   handler: async (
     ctx,
     args,
-  ): Promise<PostWithParsedContentAndCanonicalPath | Error | null> => {
+  ): Promise<PostWithParsedContentAndCanonicalPath | null> => {
     if (args.pathKey.split("/").length !== 2) {
       return null;
     }
@@ -134,7 +127,7 @@ export const getPostByCategoryPathAndSlug = query({
     const parsed = parsePostContentDoc(post);
 
     if (!parsed) {
-      return new Error("Invalid post content");
+      return null;
     }
 
     return {
