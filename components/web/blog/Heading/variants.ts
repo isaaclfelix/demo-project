@@ -17,6 +17,10 @@ export const variants = cva(
         center: "text-center",
         right: "text-right",
       },
+      decoration: {
+        underline: "underline",
+        "line-through": "line-through",
+      },
       defaultVariants: {
         level: "level-1",
         textAlign: "left",

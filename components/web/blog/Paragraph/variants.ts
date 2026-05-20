@@ -7,6 +7,10 @@ export const variants = cva("mb-4 leading-7 last:mb-0", {
       center: "text-center",
       right: "text-right",
     },
+    decoration: {
+      underline: "underline",
+      "line-through": "line-through",
+    },
     defaultVariants: {
       textAlign: "left",
     },

@@ -17,6 +17,7 @@ export function Heading({ block }: HeadingProps) {
       className={variants({
         level: `level-${block.level}`,
         textAlign: block.textAlign,
+        decoration: block.typography.textDecoration,
       })}
     >
       <InlineContent nodes={block.content} />

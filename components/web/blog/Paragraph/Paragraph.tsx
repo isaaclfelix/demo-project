@@ -11,7 +11,12 @@ type HeadingProps = {
 
 export function Paragraph({ block }: HeadingProps) {
   return (
-    <p className={variants({ textAlign: block.textAlign })}>
+    <p
+      className={variants({
+        textAlign: block.textAlign,
+        decoration: block.typography.textDecoration,
+      })}
+    >
       <InlineContent nodes={block.content} />
     </p>
   );

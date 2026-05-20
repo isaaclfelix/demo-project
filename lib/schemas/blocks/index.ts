@@ -85,7 +85,7 @@ const typographySchema = z.object({
   fontWeight: z.string().nullable(),
   lineHeight: z.string().nullable(),
   letterSpacing: z.string().nullable(),
-  textDecoration: z.string().nullable(),
+  textDecoration: z.enum(["underline", "line-through"]).nullable(),
   textTransform: z.string().nullable(),
   writingMode: z.string().nullable(),
 });
