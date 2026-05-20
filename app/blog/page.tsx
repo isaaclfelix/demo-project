@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 
 import { fetchQuery } from "convex/nextjs";
 
+import { variants as headingVariants } from "@/components/web/blog/Heading/variants";
 import { Section } from "@/components/web/Section";
+import { cn } from "@/lib/utils";
 import { api } from "@/convex/_generated/api";
 
 import { PostsSection } from "./_components/PostsSection";
@@ -25,7 +27,12 @@ export default async function BlogPage() {
 
   return (
     <Section>
-      <h1 className="mb-4 text-center text-4xl font-bold tracking-tight text-balance">
+      <h1
+        className={cn(
+          headingVariants({ level: "level-1" }),
+          "mt-0 text-center font-bold",
+        )}
+      >
         Blog
       </h1>
       <p className="mb-8 text-center text-sm text-muted-foreground">
