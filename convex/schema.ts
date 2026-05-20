@@ -24,23 +24,4 @@ export default defineSchema({
   })
     .index("by_original_id", ["originalId"])
     .index("by_slug", ["slug"]),
-  authors: defineTable({
-    name: v.string(),
-    slug: v.string(),
-    bio: v.string(),
-    avatarUrl: v.string(),
-    originalId: v.number(),
-  }).index("by_original_id", ["originalId"]),
-  categories: defineTable({
-    name: v.string(),
-    slug: v.string(),
-    description: v.string(),
-    originalId: v.number(),
-  }).index("by_original_id", ["originalId"]),
-  tags: defineTable({
-    name: v.string(),
-    slug: v.string(),
-    description: v.string(),
-    originalId: v.number(),
-  }).index("by_original_id", ["originalId"]),
 });
