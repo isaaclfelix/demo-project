@@ -147,12 +147,13 @@ export async function upsertCategory(
       parentOriginalId: term.parentOriginalId,
     });
   } else {
+    // pathKey is derived server-side; "" satisfies the schema until recompute runs below.
     const id = await ctx.db.insert("categories", {
       originalId: term.originalId,
       name: term.name,
       slug: term.slug,
       parentOriginalId: term.parentOriginalId,
-      pathKey: term.slug,
+      pathKey: "",
     });
 
     const inserted = await ctx.db.get(id);
