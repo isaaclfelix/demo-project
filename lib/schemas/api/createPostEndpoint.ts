@@ -1,19 +1,52 @@
 import z from "zod";
 
-export const createPostEndpointSchema = z.strictObject({
-  title: z.string(),
-  slug: z.string(),
-  content: z.string(),
-  excerpt: z.string(),
-  type: z.string(),
-  status: z.string(),
-  commentStatus: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  originalId: z.number(),
-  authorId: z.number(),
-  categoryIds: z.array(z.number()),
-  tagIds: z.array(z.number()),
-});
+import { categoryTermSchema, tagTermSchema } from "./taxonomy";
+
+export const createPostEndpointSchema = z
+  .strictObject({
+    title: z.string(),
+    slug: z.string(),
+    content: z.string(),
+    excerpt: z.string(),
+    type: z.string(),
+    status: z.string(),
+    commentStatus: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    originalId: z.number(),
+    authorId: z.number(),
+    categories: z.array(categoryTermSchema),
+    tags: z.array(tagTermSchema),
+    permalinkCategoryOriginalId: z.number().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.permalinkCategoryOriginalId === undefined) {
+      return;
+    }
+    if (
+      !data.categories.some(
+        (c) => c.originalId === data.permalinkCategoryOriginalId,
+      )
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "permalinkCategoryOriginalId must appear in the categories array.",
+        path: ["permalinkCategoryOriginalId"],
+      });
+      return;
+    }
+    const leaf = data.categories.find(
+      (c) => c.originalId === data.permalinkCategoryOriginalId,
+    );
+    if (leaf?.parentOriginalId === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Permalink category must be a subcategory (parentOriginalId required on that term).",
+        path: ["permalinkCategoryOriginalId"],
+      });
+    }
+  });
 
 export type CreatePostEndpointSchema = z.infer<typeof createPostEndpointSchema>;
