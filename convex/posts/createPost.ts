@@ -5,6 +5,20 @@ import { Doc, Id } from "../_generated/dataModel";
 import { httpAction, internalMutation } from "../_generated/server";
 import { createPostEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
+import { syncPostTaxonomy } from "../lib/syncTaxonomy";
+
+const categoryTerm = v.object({
+  originalId: v.number(),
+  name: v.string(),
+  slug: v.string(),
+  parentOriginalId: v.optional(v.number()),
+});
+
+const tagTerm = v.object({
+  originalId: v.number(),
+  name: v.string(),
+  slug: v.string(),
+});
 
 export const createPost = internalMutation({
   args: {
@@ -19,8 +33,9 @@ export const createPost = internalMutation({
     updatedAt: v.string(),
     originalId: v.number(),
     authorId: v.number(),
-    categoryIds: v.array(v.number()),
-    tagIds: v.array(v.number()),
+    categories: v.array(categoryTerm),
+    tags: v.array(tagTerm),
+    permalinkCategoryOriginalId: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Id<"posts"> | Error> => {
     let existingPost: Doc<"posts"> | null = null;
@@ -40,15 +55,33 @@ export const createPost = internalMutation({
       );
     }
 
-    let insertResponse;
+    const { categories, tags, permalinkCategoryOriginalId, ...postFields } =
+      args;
+
+    let postId: Id<"posts">;
 
     try {
-      insertResponse = await ctx.db.insert("posts", args);
+      postId = await ctx.db.insert("posts", {
+        ...postFields,
+        permalinkCategoryOriginalId,
+      });
     } catch (error) {
       return error as Error;
     }
 
-    return insertResponse;
+    try {
+      await syncPostTaxonomy(ctx, postId, {
+        categories,
+        tags,
+        permalinkCategoryOriginalId,
+        updatedAt: args.updatedAt,
+      });
+    } catch (error) {
+      await ctx.db.delete(postId);
+      return error as Error;
+    }
+
+    return postId;
   },
 });
 
@@ -77,8 +110,9 @@ export const createPostEndpoint = httpAction(async (ctx, req) => {
   );
 
   if (mutationResponse instanceof Error) {
+    const isClient = mutationResponse.message.includes("Permalink category");
     return new Response(JSON.stringify({ error: mutationResponse.message }), {
-      status: 500,
+      status: isClient ? 400 : 500,
     });
   }
 

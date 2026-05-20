@@ -1,61 +1,43 @@
+import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
-import { PostContent, postContentSchema } from "../lib/schemas/blocks";
+import { postCanonicalPath } from "../lib/content/postPath";
 import { Doc } from "./_generated/dataModel";
 import { query } from "./_generated/server";
+import {
+  canonicalPathForPostDoc,
+  parsePostContentDoc,
+  type PostWithParsedContent,
+} from "./lib/parsePostContent";
 
-export type PostWithParsedContent = Omit<Doc<"posts">, "content"> & {
-  content: PostContent;
-};
-
-type GetPostsResult = PostWithParsedContent[];
+export type { PostWithParsedContent };
 
 export const getPosts = query({
   args: {
-    limit: v.number(),
-    offset: v.number(),
+    paginationOpts: paginationOptsValidator,
   },
-  handler: async (ctx, args): Promise<GetPostsResult | Error> => {
-    let posts: Doc<"posts">[] = [];
+  handler: async (ctx, { paginationOpts }) => {
+    const result = await ctx.db
+      .query("posts")
+      .withIndex("by_updated_at")
+      .order("desc")
+      .paginate(paginationOpts);
 
-    try {
-      posts = await ctx.db.query("posts").collect();
-    } catch (error) {
-      return error as Error;
+    const enriched: PostWithParsedContent[] = [];
+
+    for (const post of result.page) {
+      const path = await canonicalPathForPostDoc(ctx, post);
+      const parsed = parsePostContentDoc(post, path);
+      if (parsed) {
+        enriched.push(parsed);
+      }
     }
 
-    if (posts.length === 0) {
-      return [];
-    }
-
-    const paginatedPosts = posts.slice(args.offset, args.offset + args.limit);
-
-    return paginatedPosts.flatMap((post): GetPostsResult => {
-      let parsedJson: PostContent = [];
-
-      try {
-        parsedJson = JSON.parse(post.content);
-      } catch (error) {
-        console.error(error);
-        return [];
-      }
-
-      const parsedContent = postContentSchema.safeParse(parsedJson);
-      if (!parsedContent.success) {
-        console.error(
-          `Invalid post content from Convex. Skipping post ${post._id}.`,
-          parsedContent.error.issues,
-        );
-        return [];
-      }
-
-      return [
-        {
-          ...post,
-          content: parsedContent.data,
-        },
-      ];
-    });
+    return {
+      page: enriched,
+      isDone: result.isDone,
+      continueCursor: result.continueCursor,
+    };
   },
 });
 
@@ -76,31 +58,60 @@ export const getPost = query({
       return new Error("Post not found");
     }
 
-    let parsedJson: PostContent = [];
+    const canonicalPath = await canonicalPathForPostDoc(ctx, post);
 
-    try {
-      parsedJson = JSON.parse(post.content);
-    } catch (error) {
-      console.error(error);
-      return error as Error;
-    }
-
-    const parsedContent = postContentSchema.safeParse(parsedJson);
-
-    if (!parsedContent.success) {
-      console.error(
-        `Invalid post content from Convex on post ${post._id}.`,
-        parsedContent.error.issues,
-      );
+    const parsed = parsePostContentDoc(post, canonicalPath);
+    if (!parsed) {
       return new Error("Invalid post content");
     }
 
-    const postWithParsedContent: PostWithParsedContent = {
-      ...post,
-      content: parsedContent.data,
-    };
+    return parsed;
+  },
+});
 
-    return postWithParsedContent;
+export const getPostByCategoryPathAndSlug = query({
+  args: {
+    pathKey: v.string(),
+    slug: v.string(),
+  },
+  handler: async (ctx, args): Promise<PostWithParsedContent | Error | null> => {
+    if (args.pathKey.split("/").length !== 2) {
+      return null;
+    }
+
+    const category = await ctx.db
+      .query("categories")
+      .withIndex("by_path_key", (q) => q.eq("pathKey", args.pathKey))
+      .unique();
+
+    if (!category || category.parentOriginalId === undefined) {
+      return null;
+    }
+
+    const post = await ctx.db
+      .query("posts")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+
+    if (!post) {
+      return null;
+    }
+
+    if (post.permalinkCategoryOriginalId !== category.originalId) {
+      return null;
+    }
+
+    const canonicalPath = postCanonicalPath({
+      slug: post.slug,
+      pathKey: category.pathKey,
+    });
+
+    const parsed = parsePostContentDoc(post, canonicalPath);
+    if (!parsed) {
+      return new Error("Invalid post content");
+    }
+
+    return parsed;
   },
 });
 

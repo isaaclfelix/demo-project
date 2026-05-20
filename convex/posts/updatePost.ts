@@ -5,6 +5,20 @@ import { Id } from "../_generated/dataModel";
 import { httpAction, internalMutation } from "../_generated/server";
 import { updatePostEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
+import { syncPostTaxonomy } from "../lib/syncTaxonomy";
+
+const categoryTerm = v.object({
+  originalId: v.number(),
+  name: v.string(),
+  slug: v.string(),
+  parentOriginalId: v.optional(v.number()),
+});
+
+const tagTerm = v.object({
+  originalId: v.number(),
+  name: v.string(),
+  slug: v.string(),
+});
 
 export const updatePost = internalMutation({
   args: {
@@ -20,16 +34,37 @@ export const updatePost = internalMutation({
     updatedAt: v.string(),
     originalId: v.number(),
     authorId: v.number(),
-    categoryIds: v.array(v.number()),
-    tagIds: v.array(v.number()),
+    categories: v.array(categoryTerm),
+    tags: v.array(tagTerm),
+    permalinkCategoryOriginalId: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Id<"posts"> | Error> => {
     const convexId = args._id;
 
-    delete (args._id as { _id?: Id<"posts"> })._id;
+    const {
+      _id: _discard,
+      categories,
+      tags,
+      permalinkCategoryOriginalId,
+      ...postPatch
+    } = args;
 
     try {
-      await ctx.db.patch(convexId, args);
+      await ctx.db.patch(convexId, {
+        ...postPatch,
+        permalinkCategoryOriginalId,
+      });
+    } catch (error) {
+      return error as Error;
+    }
+
+    try {
+      await syncPostTaxonomy(ctx, convexId, {
+        categories,
+        tags,
+        permalinkCategoryOriginalId,
+        updatedAt: args.updatedAt,
+      });
     } catch (error) {
       return error as Error;
     }
@@ -68,8 +103,9 @@ export const updatePostEndpoint = httpAction(async (ctx, req) => {
   );
 
   if (mutationResponse instanceof Error) {
+    const isClient = mutationResponse.message.includes("Permalink category");
     return new Response(JSON.stringify({ error: mutationResponse.message }), {
-      status: 500,
+      status: isClient ? 400 : 500,
     });
   }
 
