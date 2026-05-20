@@ -9,7 +9,7 @@ JSON body must match `createPostEndpointSchema` / `updatePostEndpointSchema`:
 - **Post fields:** `title`, `slug`, `content`, `excerpt`, `type`, `status`, `commentStatus`, `createdAt`, `updatedAt`, `originalId`, `authorId`.
 - **Categories:** `categories` — array of `{ originalId, name, slug, parentOriginalId? }` for every category term assigned to the post (embed full objects, not only IDs).
 - **Tags:** `tags` — array of `{ originalId, name, slug }`.
-- **Permalink:** optional `permalinkCategoryOriginalId` — WordPress term id of the **leaf** category used in the URL. If set, it **must** appear in `categories`, and that term **must** include `parentOriginalId` (two-level path, e.g. `parent/child`).
+- **Permalink (required):** `permalinkCategoryOriginalId` — number; WordPress term id of the **leaf** category used in the canonical URL. It **must** appear in `categories`, and that term **must** include `parentOriginalId` (two-level path, e.g. `parent/child`). Omitting the field is invalid; every post sync must send a real term id.
 
 PATCH requires `_id` (Convex `posts` document id).
 
@@ -33,4 +33,4 @@ Use these when terms change without a full post sync.
 
 ## After schema deploy
 
-Clear dev Convex data and re-sync from WordPress (owner-operated step). Ensure each synced post includes `permalinkCategoryOriginalId` and embedded category rows when you want canonical URLs.
+Clear dev Convex data and re-sync from WordPress (owner-operated step). Every synced post must include `permalinkCategoryOriginalId` (required) plus embedded category rows for all assigned terms.
