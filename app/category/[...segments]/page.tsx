@@ -6,6 +6,8 @@ import { fetchQuery } from "convex/nextjs";
 import { Breadcrumbs } from "@/components/web/blog/Breadcrumbs";
 import { variants as headingVariants } from "@/components/web/blog/Heading/variants";
 import { Section } from "@/components/web/Section";
+import { cachedGetCategoryBreadcrumbs } from "@/lib/content/cachedGetCategoryBreadcrumbs";
+import { cachedGetCategoryByPathKey } from "@/lib/content/cachedGetCategoryByPathKey";
 import { cn } from "@/lib/utils";
 import { api } from "@/convex/_generated/api";
 
@@ -21,9 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const pathKey = segments.join("/");
-  const category = await fetchQuery(api.categories.getCategoryByPathKey, {
-    pathKey,
-  });
+  const category = await cachedGetCategoryByPathKey(pathKey);
 
   if (!category) {
     return {};
@@ -44,17 +44,13 @@ export default async function CategoryArchivePage({ params }: Props) {
 
   const pathKey = segments.join("/");
 
-  const category = await fetchQuery(api.categories.getCategoryByPathKey, {
-    pathKey,
-  });
+  const category = await cachedGetCategoryByPathKey(pathKey);
 
   if (!category) {
     notFound();
   }
 
-  const crumbs = await fetchQuery(api.categories.getCategoryBreadcrumbs, {
-    pathKey,
-  });
+  const crumbs = await cachedGetCategoryBreadcrumbs(pathKey);
 
   const listing = await fetchQuery(api.categories.listPostsByCategory, {
     categoryOriginalId: category.originalId,
