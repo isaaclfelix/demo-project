@@ -1,10 +1,10 @@
 import { variants as headingVariants } from "@/components/web/blog/Heading";
 import { PostContent } from "@/components/web/blog/PostContent";
 import { cn } from "@/lib/utils";
-import { PostWithParsedContent } from "@/convex/posts";
+import { PostWithParsedContentAndCanonicalPath } from "@/convex/posts";
 
 type PostCardProps = {
-  post: PostWithParsedContent;
+  post: PostWithParsedContentAndCanonicalPath;
 };
 
 export function PostCard({ post }: PostCardProps) {

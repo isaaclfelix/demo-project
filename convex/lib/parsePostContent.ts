@@ -5,12 +5,14 @@ import { PostContent, postContentSchema } from "../../lib/schemas/blocks";
 
 export type PostWithParsedContent = Omit<Doc<"posts">, "content"> & {
   content: PostContent;
-  canonicalPath: string | null;
+};
+
+export type PostWithParsedContentAndCanonicalPath = PostWithParsedContent & {
+  canonicalPath: string;
 };
 
 export function parsePostContentDoc(
   post: Doc<"posts">,
-  canonicalPath: string | null,
 ): PostWithParsedContent | null {
   let parsedJson: PostContent = [];
 
@@ -22,6 +24,7 @@ export function parsePostContentDoc(
   }
 
   const parsedContent = postContentSchema.safeParse(parsedJson);
+
   if (!parsedContent.success) {
     console.error(
       `Invalid post content from Convex. Skipping post ${post._id}.`,
@@ -33,7 +36,6 @@ export function parsePostContentDoc(
   return {
     ...post,
     content: parsedContent.data,
-    canonicalPath,
   };
 }
 
@@ -41,17 +43,16 @@ export async function canonicalPathForPostDoc(
   ctx: QueryCtx,
   post: Doc<"posts">,
 ): Promise<string | null> {
-  if (post.permalinkCategoryOriginalId === undefined) {
-    return null;
-  }
   const cat = await ctx.db
     .query("categories")
     .withIndex("by_original_id", (q) =>
-      q.eq("originalId", post.permalinkCategoryOriginalId!),
+      q.eq("originalId", post.permalinkCategoryOriginalId),
     )
     .unique();
+
   if (!cat) {
     return null;
   }
+
   return postCanonicalPath({ slug: post.slug, pathKey: cat.pathKey });
 }

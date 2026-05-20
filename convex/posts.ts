@@ -7,10 +7,10 @@ import { query } from "./_generated/server";
 import {
   canonicalPathForPostDoc,
   parsePostContentDoc,
-  type PostWithParsedContent,
+  type PostWithParsedContentAndCanonicalPath,
 } from "./lib/parsePostContent";
 
-export type { PostWithParsedContent };
+export type { PostWithParsedContentAndCanonicalPath };
 
 export const getPosts = query({
   args: {
@@ -23,14 +23,25 @@ export const getPosts = query({
       .order("desc")
       .paginate(paginationOpts);
 
-    const enriched: PostWithParsedContent[] = [];
+    const enriched: PostWithParsedContentAndCanonicalPath[] = [];
 
     for (const post of result.page) {
-      const path = await canonicalPathForPostDoc(ctx, post);
-      const parsed = parsePostContentDoc(post, path);
-      if (parsed) {
-        enriched.push(parsed);
+      const parsed = parsePostContentDoc(post);
+
+      if (!parsed) {
+        continue;
       }
+
+      const path = await canonicalPathForPostDoc(ctx, post);
+
+      if (!path) {
+        continue;
+      }
+
+      enriched.push({
+        ...parsed,
+        canonicalPath: path,
+      });
     }
 
     return {
@@ -45,7 +56,10 @@ export const getPost = query({
   args: {
     id: v.id("posts"),
   },
-  handler: async (ctx, args): Promise<PostWithParsedContent | Error> => {
+  handler: async (
+    ctx,
+    args,
+  ): Promise<PostWithParsedContentAndCanonicalPath | Error> => {
     let post: Doc<"posts"> | null = null;
 
     try {
@@ -58,14 +72,22 @@ export const getPost = query({
       return new Error("Post not found");
     }
 
-    const canonicalPath = await canonicalPathForPostDoc(ctx, post);
+    const parsed = parsePostContentDoc(post);
 
-    const parsed = parsePostContentDoc(post, canonicalPath);
     if (!parsed) {
       return new Error("Invalid post content");
     }
 
-    return parsed;
+    const canonicalPath = await canonicalPathForPostDoc(ctx, post);
+
+    if (!canonicalPath) {
+      return new Error("Canonical path not found");
+    }
+
+    return {
+      ...parsed,
+      canonicalPath,
+    };
   },
 });
 
@@ -74,7 +96,10 @@ export const getPostByCategoryPathAndSlug = query({
     pathKey: v.string(),
     slug: v.string(),
   },
-  handler: async (ctx, args): Promise<PostWithParsedContent | Error | null> => {
+  handler: async (
+    ctx,
+    args,
+  ): Promise<PostWithParsedContentAndCanonicalPath | Error | null> => {
     if (args.pathKey.split("/").length !== 2) {
       return null;
     }
@@ -106,12 +131,16 @@ export const getPostByCategoryPathAndSlug = query({
       pathKey: category.pathKey,
     });
 
-    const parsed = parsePostContentDoc(post, canonicalPath);
+    const parsed = parsePostContentDoc(post);
+
     if (!parsed) {
       return new Error("Invalid post content");
     }
 
-    return parsed;
+    return {
+      ...parsed,
+      canonicalPath,
+    };
   },
 });
 

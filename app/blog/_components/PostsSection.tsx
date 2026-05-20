@@ -8,10 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PostWithParsedContent } from "@/convex/posts";
+import { PostWithParsedContentAndCanonicalPath } from "@/convex/posts";
 
 type PostsSectionProps = {
-  posts: PostWithParsedContent[];
+  posts: PostWithParsedContentAndCanonicalPath[];
 };
 
 export function PostsSection({ posts }: PostsSectionProps) {
