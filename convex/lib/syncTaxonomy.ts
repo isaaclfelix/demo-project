@@ -16,6 +16,31 @@ export type TagTermInput = {
   slug: string;
 };
 
+/** Memoizes category rows by `originalId` across upserts and recomputes in one sync/mutation. */
+export type CategoryCache = Map<number, Doc<"categories"> | null>;
+
+export function createCategoryCache(): CategoryCache {
+  return new Map();
+}
+
+async function getCategoryByOriginalId(
+  ctx: MutationCtx,
+  cache: CategoryCache,
+  originalId: number,
+): Promise<Doc<"categories"> | null> {
+  if (cache.has(originalId)) {
+    return cache.get(originalId) ?? null;
+  }
+
+  const row = await ctx.db
+    .query("categories")
+    .withIndex("by_original_id", (q) => q.eq("originalId", originalId))
+    .unique();
+
+  cache.set(originalId, row ?? null);
+  return row;
+}
+
 /**
  * Rebuild `pathKey` for one category and every descendant.
  *
@@ -24,16 +49,17 @@ export type TagTermInput = {
  * walking up the parent chain. When this node's slug or parent changes, every descendant's
  * pathKey is stale too — we fix this node first, then recurse into each direct child.
  *
+ * A shared `cache` avoids re-querying rows already loaded while walking the tree or
+ * upserting multiple categories in one batch (e.g. `programming` is fetched once).
+ *
  * Called from `upsertCategory` after insert/patch; entry `originalId` is the node that changed.
  */
 export async function recomputeCategoryPathKey(
   ctx: MutationCtx,
   originalId: number,
+  cache: CategoryCache,
 ): Promise<void> {
-  const cat = await ctx.db
-    .query("categories")
-    .withIndex("by_original_id", (q) => q.eq("originalId", originalId))
-    .unique();
+  const cat = await getCategoryByOriginalId(ctx, cache, originalId);
 
   if (!cat) {
     return;
@@ -71,17 +97,15 @@ export async function recomputeCategoryPathKey(
 
     const parentId: number = current.parentOriginalId;
 
-    // Load parent row; if missing, `current` becomes null and the while exits (partial path).
-    current = await ctx.db
-      .query("categories")
-      .withIndex("by_original_id", (q) => q.eq("originalId", parentId))
-      .unique();
+    // Uses cache so siblings/descendants do not re-query the same ancestors.
+    current = await getCategoryByOriginalId(ctx, cache, parentId);
   }
 
   const pathKey = slugs.join("/");
 
   if (cat.pathKey !== pathKey) {
     await ctx.db.patch(cat._id, { pathKey });
+    cache.set(originalId, { ...cat, pathKey });
   }
 
   // --- Phase 2: propagate to descendants (recursive walk DOWN the tree) ---
@@ -98,18 +122,17 @@ export async function recomputeCategoryPathKey(
     .collect();
 
   for (const child of children) {
-    await recomputeCategoryPathKey(ctx, child.originalId);
+    cache.set(child.originalId, child);
+    await recomputeCategoryPathKey(ctx, child.originalId, cache);
   }
 }
 
 export async function upsertCategory(
   ctx: MutationCtx,
   term: CategoryTermInput,
+  cache: CategoryCache = createCategoryCache(),
 ): Promise<void> {
-  const existing = await ctx.db
-    .query("categories")
-    .withIndex("by_original_id", (q) => q.eq("originalId", term.originalId))
-    .unique();
+  const existing = await getCategoryByOriginalId(ctx, cache, term.originalId);
 
   if (existing) {
     await ctx.db.patch(existing._id, {
@@ -117,17 +140,29 @@ export async function upsertCategory(
       slug: term.slug,
       parentOriginalId: term.parentOriginalId,
     });
+    cache.set(term.originalId, {
+      ...existing,
+      name: term.name,
+      slug: term.slug,
+      parentOriginalId: term.parentOriginalId,
+    });
   } else {
-    await ctx.db.insert("categories", {
+    const id = await ctx.db.insert("categories", {
       originalId: term.originalId,
       name: term.name,
       slug: term.slug,
       parentOriginalId: term.parentOriginalId,
       pathKey: term.slug,
     });
+
+    const inserted = await ctx.db.get(id);
+
+    if (inserted) {
+      cache.set(term.originalId, inserted);
+    }
   }
 
-  await recomputeCategoryPathKey(ctx, term.originalId);
+  await recomputeCategoryPathKey(ctx, term.originalId, cache);
 }
 
 export async function upsertTag(
@@ -190,8 +225,10 @@ export async function syncPostCategories(
   // Clear existing links.
   await clearPostCategoryLinks(ctx, postId);
 
+  const categoryCache = createCategoryCache();
+
   for (const term of terms) {
-    await upsertCategory(ctx, term);
+    await upsertCategory(ctx, term, categoryCache);
 
     // Create link.
     await ctx.db.insert("postCategories", {
