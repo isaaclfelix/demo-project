@@ -3,12 +3,10 @@ import { v } from "convex/values";
 
 import { query } from "./_generated/server";
 import { canonicalPathForPostDoc } from "./lib/canonicalPathForPostDoc";
-import {
-  parsePostContentDoc,
-  type PostWithParsedContentAndCanonicalPath,
-} from "./lib/parsePostContent";
+import { parsePostContentDoc } from "./lib/parsePostContent";
+import type { PostProjection } from "./lib/postProjection";
 
-export type { PostWithParsedContentAndCanonicalPath };
+export type { PostProjection } from "./lib/postProjection";
 
 export const getCategoryByPathKey = query({
   args: { pathKey: v.string() },
@@ -69,7 +67,7 @@ export const listPostsByCategory = query({
       .order("desc")
       .paginate(paginationOpts);
 
-    const enriched: PostWithParsedContentAndCanonicalPath[] = [];
+    const enriched: PostProjection[] = [];
 
     for (const link of result.page) {
       const post = await ctx.db.get(link.postId);

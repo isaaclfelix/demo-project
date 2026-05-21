@@ -17,6 +17,7 @@ import type * as httpAuth from "../httpAuth.js";
 import type * as lib_canonicalPathForPostDoc from "../lib/canonicalPathForPostDoc.js";
 import type * as lib_mutationErrorResponse from "../lib/mutationErrorResponse.js";
 import type * as lib_parsePostContent from "../lib/parsePostContent.js";
+import type * as lib_postProjection from "../lib/postProjection.js";
 import type * as lib_syncTaxonomy from "../lib/syncTaxonomy.js";
 import type * as posts from "../posts.js";
 import type * as posts_createPost from "../posts/createPost.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   "lib/canonicalPathForPostDoc": typeof lib_canonicalPathForPostDoc;
   "lib/mutationErrorResponse": typeof lib_mutationErrorResponse;
   "lib/parsePostContent": typeof lib_parsePostContent;
+  "lib/postProjection": typeof lib_postProjection;
   "lib/syncTaxonomy": typeof lib_syncTaxonomy;
   posts: typeof posts;
   "posts/createPost": typeof posts_createPost;

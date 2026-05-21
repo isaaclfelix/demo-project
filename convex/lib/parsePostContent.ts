@@ -1,17 +1,10 @@
 import { Doc } from "../_generated/dataModel";
 import { PostContent, postContentSchema } from "../../lib/schemas/blocks";
-
-export type PostWithParsedContent = Omit<Doc<"posts">, "content"> & {
-  content: PostContent;
-};
-
-export type PostWithParsedContentAndCanonicalPath = PostWithParsedContent & {
-  canonicalPath: string;
-};
+import type { PostSchemaParsed } from "./postProjection";
 
 export function parsePostContentDoc(
   post: Doc<"posts">,
-): PostWithParsedContent | null {
+): PostSchemaParsed | null {
   let parsedJson: PostContent = [];
 
   try {
