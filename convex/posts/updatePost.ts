@@ -5,6 +5,21 @@ import { Id } from "../_generated/dataModel";
 import { httpAction, internalMutation } from "../_generated/server";
 import { updatePostEndpointSchema } from "../../lib/schemas/api";
 import { verifyBearerToken } from "../httpAuth";
+import { mutationErrorResponse } from "../lib/mutationErrorResponse";
+import { syncPostTaxonomy } from "../lib/syncTaxonomy";
+
+const categoryTerm = v.object({
+  originalId: v.number(),
+  name: v.string(),
+  slug: v.string(),
+  parentOriginalId: v.optional(v.number()),
+});
+
+const tagTerm = v.object({
+  originalId: v.number(),
+  name: v.string(),
+  slug: v.string(),
+});
 
 export const updatePost = internalMutation({
   args: {
@@ -20,19 +35,32 @@ export const updatePost = internalMutation({
     updatedAt: v.string(),
     originalId: v.number(),
     authorId: v.number(),
-    categoryIds: v.array(v.number()),
-    tagIds: v.array(v.number()),
+    categories: v.array(categoryTerm),
+    tags: v.array(tagTerm),
+    permalinkCategoryOriginalId: v.number(),
   },
-  handler: async (ctx, args): Promise<Id<"posts"> | Error> => {
+  handler: async (ctx, args): Promise<Id<"posts">> => {
     const convexId = args._id;
 
-    delete (args._id as { _id?: Id<"posts"> })._id;
+    const {
+      _id: _discard,
+      categories,
+      tags,
+      permalinkCategoryOriginalId,
+      ...postPatch
+    } = args;
 
-    try {
-      await ctx.db.patch(convexId, args);
-    } catch (error) {
-      return error as Error;
-    }
+    await ctx.db.patch(convexId, {
+      ...postPatch,
+      permalinkCategoryOriginalId,
+    });
+
+    await syncPostTaxonomy(ctx, convexId, {
+      categories,
+      tags,
+      permalinkCategoryOriginalId,
+      updatedAt: args.updatedAt,
+    });
 
     return convexId;
   },
@@ -59,21 +87,16 @@ export const updatePostEndpoint = httpAction(async (ctx, req) => {
 
   const { _id: postId, ...postFields } = parsedRequestBody.data;
 
-  const mutationResponse: Id<"posts"> | Error = await ctx.runMutation(
-    internal.posts.updatePost,
-    {
+  try {
+    const id = await ctx.runMutation(internal.posts.updatePost, {
       ...postFields,
       _id: postId as Id<"posts">,
-    },
-  );
-
-  if (mutationResponse instanceof Error) {
-    return new Response(JSON.stringify({ error: mutationResponse.message }), {
-      status: 500,
     });
-  }
 
-  return new Response(JSON.stringify({ id: mutationResponse }), {
-    status: 200,
-  });
+    return new Response(JSON.stringify({ id }), {
+      status: 200,
+    });
+  } catch (error) {
+    return mutationErrorResponse(error);
+  }
 });

@@ -1,10 +1,11 @@
+import { Separator } from "@/components/ui/separator";
 import { variants as headingVariants } from "@/components/web/blog/Heading";
 import { PostContent } from "@/components/web/blog/PostContent";
 import { cn } from "@/lib/utils";
-import { PostWithParsedContent } from "@/convex/posts";
+import type { PostProjection } from "@/convex/posts";
 
 type PostCardProps = {
-  post: PostWithParsedContent;
+  post: PostProjection;
 };
 
 export function PostCard({ post }: PostCardProps) {
@@ -16,7 +17,14 @@ export function PostCard({ post }: PostCardProps) {
 
       {post.excerpt && <p className="mb-4">{post.excerpt}</p>}
 
-      <hr className="mb-4" />
+      <div className="mb-4 flex flex-col">
+        <p className="w-full text-xs/relaxed text-muted-foreground">
+          Published on {new Date(post.createdAt).toLocaleDateString("en-US")}.
+          Updated on {new Date(post.updatedAt).toLocaleDateString("en-US")}.
+        </p>
+      </div>
+
+      <Separator className="mb-4" />
 
       <PostContent postContent={post.content} />
     </div>
