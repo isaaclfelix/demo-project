@@ -8,6 +8,16 @@ import type { PostProjection } from "./lib/postProjection";
 
 export type { PostProjection } from "./lib/postProjection";
 
+export const getCategoryByOriginalId = query({
+  args: { originalId: v.number() },
+  handler: async (ctx, { originalId }) => {
+    return await ctx.db
+      .query("categories")
+      .withIndex("by_original_id", (q) => q.eq("originalId", originalId))
+      .unique();
+  },
+});
+
 export const getCategoryByPathKey = query({
   args: { pathKey: v.string() },
   handler: async (ctx, { pathKey }) => {
